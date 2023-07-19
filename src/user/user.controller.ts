@@ -6,7 +6,7 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { User } from './user.model';
+import { User } from './schemas/user.schema';
 import { UserService } from './user.service';
 
 @Controller('user')
