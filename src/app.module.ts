@@ -24,12 +24,11 @@ const ENV = process.env.NODE_ENV;
     MongooseModule.forRootAsync({
       useFactory: async (configService: ConfigService) => {
         const host = configService.get<string>('app.DB_HOST');
-        const port = configService.get<string>('app.DB_PORT');
-        const dbName = configService.get<string>('app.DB_NAME');
         const user = configService.get<string>('app.DB_USERNAME');
         const pass = configService.get<string>('app.DB_PASSWORD');
 
-        const uri = `mongodb://${user}:${pass}@${host}:${port}/${dbName}`;
+        const uri = `mongodb+srv://${user}:${pass}@${host}/`;
+
         console.log('>>> herher ', uri);
         return {
           uri,
