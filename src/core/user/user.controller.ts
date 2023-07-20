@@ -8,8 +8,10 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { User } from './schemas/user.schema';
 import { UserService } from './user.service';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('user')
+@ApiTags('Users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

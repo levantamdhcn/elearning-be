@@ -5,12 +5,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { config as appConfig } from './config';
-import { config as cloudinaryConfig } from './cloudinary/config';
+import { config as cloudinaryConfig } from './core/cloudinary/config';
 
-import { UserModule } from './user/user.module';
 import { SharedModule } from './shared/shared.module';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
-import { AuthModule } from './auth/auth.module';
+import { CoreModule } from './core/core.module';
 
 const ENV = process.env.NODE_ENV;
 
@@ -36,10 +34,8 @@ const ENV = process.env.NODE_ENV;
       },
       inject: [ConfigService],
     }),
-    CloudinaryModule,
-    UserModule,
+    CoreModule,
     SharedModule,
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
