@@ -6,8 +6,8 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { User } from './schemas/user.schema';
-import { UserService } from './user.service';
+import { User } from './schemas/users.schema';
+import { UserService } from './users.service';
 import { ApiTags } from '@nestjs/swagger';
 
 @Controller('user')
