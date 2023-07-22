@@ -1,3 +1,4 @@
 export const jwtConstants = {
-  secret: 'superScret',
+  atSecret: 'at-superScret',
+  rfSecret: 'rf-secret',
 };

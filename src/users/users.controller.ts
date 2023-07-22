@@ -6,9 +6,9 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { User } from './schemas/users.schema';
 import { UserService } from './users.service';
 import { ApiTags } from '@nestjs/swagger';
+import { Tokens } from 'src/auth/types';
 
 @Controller('user')
 @ApiTags('Users')
@@ -20,8 +20,8 @@ export class UserController {
   async register(
     @Body() data: any,
     @UploadedFile() avatar?: Express.Multer.File,
-  ): Promise<User> {
-    const user = this.userService.create(avatar, data);
+  ): Promise<Tokens> {
+    const user = await this.userService.create(avatar, data);
     return user;
   }
 }

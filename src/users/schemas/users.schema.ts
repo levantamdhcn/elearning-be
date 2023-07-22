@@ -35,6 +35,9 @@ export class User {
 
   @Prop({ default: false })
   admin: boolean;
+
+  @Prop()
+  refreshToken: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

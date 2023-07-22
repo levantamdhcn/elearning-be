@@ -1,6 +1,6 @@
 import { Controller, HttpCode, HttpStatus, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignInDTO } from './dto';
+import { LogoutDTO, SignInDTO } from './dto';
 
 @Controller('auth')
 export class AuthController {
@@ -8,13 +8,15 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  siginIn(@Body() siginInDto: SignInDTO) {
-    return this.authService.siginIn(siginInDto.email, siginInDto.password);
+  siginIn(@Body() siginInDTO: SignInDTO) {
+    return this.authService.siginIn(siginInDTO.email, siginInDTO.password);
   }
 
-  @Post('/logout')
-  logout() {}
+  @Post('logout')
+  logout(@Body() logoutDTO: LogoutDTO) {
+    return this.authService.logout(logoutDTO.userId);
+  }
 
-  @Post('/refreshToken')
+  @Post('refreshToken')
   refreshToken() {}
 }
