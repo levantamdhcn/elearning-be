@@ -18,8 +18,11 @@ import { LogoutDTO, RefreshTokenDTO, SignInDTO } from './dto';
 import { AccessTokenGuard, RefreshTokenGuard } from './guards';
 import { AuthGuard } from './guards/auth.guard';
 import { Tokens } from './types';
+import { ApiTags, ApiConsumes } from '@nestjs/swagger';
+import { RegisterDTO } from './dto/register.dto';
 
 @Controller('auth')
+@ApiTags('Auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
@@ -30,9 +33,10 @@ export class AuthController {
   }
 
   @Post('register')
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('avatar'))
   async register(
-    @Body() data: any,
+    @Body() data: RegisterDTO,
     @UploadedFile() avatar?: Express.Multer.File,
   ): Promise<Tokens> {
     const user = await this.authService.register(avatar, data);

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   forwardRef,
   Inject,
@@ -16,15 +17,16 @@ import { User, UserDocument } from 'src/users/schemas/users.schema';
 import { UserService } from 'src/users/users.service';
 import { jwtConstants } from './constants';
 import { Tokens } from './types';
+import { RegisterDTO } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     // https://docs.nestjs.com/fundamentals/circular-dependency#forward-reference
     @Inject(forwardRef(() => UserService))
+    private userService: UserService,
     @InjectModel(User.name)
     private userModel: Model<UserDocument>,
-    private userService: UserService,
     private jwtService: JwtService,
     private cloudinaryService: CloudinaryService,
   ) {}
@@ -37,18 +39,31 @@ export class AuthService {
     const hash = await this.hashData(refreshToken);
     await this.userService.update(_id, {
       refreshToken: hash,
-    })
+    });
   }
 
   async register(
     @UploadedFile() avatar: Express.Multer.File,
-    data: User,
+    data: RegisterDTO,
   ): Promise<Tokens> {
-    const url = await this.cloudinaryService.uploadFile(avatar);
-    
+    const existingEmail = await this.userModel.findOne({ email: data?.email });
+    if (existingEmail) {
+      throw new BadRequestException('Email already exists');
+    }
+    const existingUsername = await this.userModel.findOne({
+      username: data?.username,
+    });
+    if (existingUsername) {
+      throw new BadRequestException('Username already exists');
+    }
+
+    const { url } = avatar
+      ? await this.cloudinaryService.uploadFile(avatar)
+      : null;
+
     const user = new this.userModel({
       ...data,
-      avatar: url,
+      ...(url && { avatar: url }),
       password: await this.hashPassword(data.password),
     });
 
@@ -61,31 +76,37 @@ export class AuthService {
 
   async generateTokens(_id: string, email: string) {
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync({
-        sub: _id,
-        email,
-      }, {
-        secret: jwtConstants.atSecret,
-        expiresIn: 60 * 15, //15 minutes
-      }),
-      this.jwtService.signAsync({
-        sub: _id,
-        email,
-      }, {
-        secret: jwtConstants.rfSecret,
-        expiresIn: 60 * 60 * 24 * 7, //7 days
-      }),
+      this.jwtService.signAsync(
+        {
+          sub: _id,
+          email,
+        },
+        {
+          secret: jwtConstants.atSecret,
+          expiresIn: 60 * 15, //15 minutes
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: _id,
+          email,
+        },
+        {
+          secret: jwtConstants.rfSecret,
+          expiresIn: 60 * 60 * 24 * 7, //7 days
+        },
+      ),
     ]);
 
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
-    }
+    };
   }
 
   async refreshToken(_id: string, refreshToken: string) {
     const user = await this.userService.findOne({
-      refreshToken
+      refreshToken,
     });
     if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access Denied');
@@ -121,7 +142,6 @@ export class AuthService {
     return await bcrypt.compare(password, hash);
   }
 
-  
   async isValidPassword(password: string, userPassword: string) {
     return await bcrypt.compare(password, userPassword);
   }
