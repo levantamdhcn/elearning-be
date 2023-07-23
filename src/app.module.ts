@@ -11,6 +11,7 @@ import { SharedModule } from './shared/shared.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { User } from './users/schemas/users.schema';
 
 const ENV = process.env.NODE_ENV;
 
@@ -39,6 +40,7 @@ const ENV = process.env.NODE_ENV;
     }),
     CloudinaryModule,
     SharedModule,
+    UsersModule,
     AuthModule,
   ],
   controllers: [AppController],

@@ -1,6 +1,17 @@
-import { ForbiddenException, forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  forwardRef,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+  UploadedFile,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
+import { Model, Schema } from 'mongoose';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { User, UserDocument } from 'src/users/schemas/users.schema';
 
 import { UserService } from 'src/users/users.service';
 import { jwtConstants } from './constants';
@@ -11,8 +22,11 @@ export class AuthService {
   constructor(
     // https://docs.nestjs.com/fundamentals/circular-dependency#forward-reference
     @Inject(forwardRef(() => UserService))
-    private userService: UserService, 
+    @InjectModel(User.name)
+    private userModel: Model<UserDocument>,
+    private userService: UserService,
     private jwtService: JwtService,
+    private cloudinaryService: CloudinaryService,
   ) {}
 
   hashData(data: string) {
@@ -24,6 +38,25 @@ export class AuthService {
     await this.userService.update(_id, {
       refreshToken: hash,
     })
+  }
+
+  async register(
+    @UploadedFile() avatar: Express.Multer.File,
+    data: User,
+  ): Promise<Tokens> {
+    const url = await this.cloudinaryService.uploadFile(avatar);
+    
+    const user = new this.userModel({
+      ...data,
+      avatar: url,
+      password: await this.hashPassword(data.password),
+    });
+
+    await user.save();
+    const tokens = await this.generateTokens(user._id, user.email);
+    await this.updateRefreshTokenHash(user._id, tokens.refresh_token);
+
+    return tokens;
   }
 
   async generateTokens(_id: string, email: string) {
@@ -51,14 +84,19 @@ export class AuthService {
   }
 
   async refreshToken(_id: string, refreshToken: string) {
-    const user = await this.userService.findOne({ _id });
-    if(!user || !user.refreshToken) {
+    const user = await this.userService.findOne({
+      refreshToken
+    });
+    if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access Denied');
     }
 
-    const refreshTokenMatches = await bcrypt.compare(refreshToken, user.refreshToken);
+    const refreshTokenMatches = await bcrypt.compare(
+      refreshToken,
+      user.refreshToken,
+    );
 
-    if(!refreshTokenMatches) throw new ForbiddenException('Access Denied');
+    if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
     const tokens = await this.generateTokens(_id, user.email);
     await this.updateRefreshTokenHash(user._id, tokens.refresh_token);
     return tokens;
@@ -71,7 +109,7 @@ export class AuthService {
     }
 
     const tokens = await this.generateTokens(user._id, email);
-    await this.updateRefreshTokenHash(user._id, tokens.refresh_token); 
+    await this.updateRefreshTokenHash(user._id, tokens.refresh_token);
     return tokens;
   }
 
@@ -81,5 +119,14 @@ export class AuthService {
 
   async isMatch(password: string, hash: string) {
     return await bcrypt.compare(password, hash);
+  }
+
+  
+  async isValidPassword(password: string, userPassword: string) {
+    return await bcrypt.compare(password, userPassword);
+  }
+
+  async hashPassword(password: string) {
+    return await bcrypt.hash(password, 12);
   }
 }
