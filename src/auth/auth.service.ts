@@ -10,6 +10,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 import { Model, Schema } from 'mongoose';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { User, UserDocument } from 'src/users/schemas/users.schema';
@@ -32,7 +33,7 @@ export class AuthService {
   ) {}
 
   hashData(data: string) {
-    return bcrypt.hash(data, 12);
+    return argon2.hash(data);
   }
 
   async updateRefreshTokenHash(_id: string, refreshToken: string) {
@@ -106,15 +107,15 @@ export class AuthService {
 
   async refreshToken(_id: string, refreshToken: string) {
     const user = await this.userService.findOne({
-      refreshToken,
+      _id,
     });
     if (!user || !user.refreshToken) {
       throw new ForbiddenException('Access Denied');
     }
 
-    const refreshTokenMatches = await bcrypt.compare(
-      refreshToken,
+    const refreshTokenMatches = await argon2.verify(
       user.refreshToken,
+      refreshToken,
     );
 
     if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
@@ -135,7 +136,8 @@ export class AuthService {
   }
 
   async logout(userId: string) {
-    return this.userService.update(userId, { refreshToken: null });
+    await this.userService.update(userId, { refreshToken: null });
+    return null;
   }
 
   async isMatch(password: string, hash: string) {

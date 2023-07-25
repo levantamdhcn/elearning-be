@@ -50,6 +50,7 @@ export class AuthController {
     return this.authService.siginIn(siginInDTO.email, siginInDTO.password);
   }
 
+  @HttpCode(HttpStatus.OK)
   @Post('logout')
   logout(@Body() logoutDTO: LogoutDTO) {
     return this.authService.logout(logoutDTO._id);
@@ -57,6 +58,7 @@ export class AuthController {
 
   @Public()
   @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
   @Post('refreshToken')
   refreshToken(@Body() refreshTokenDTO: RefreshTokenDTO) {
     return this.authService.refreshToken(
