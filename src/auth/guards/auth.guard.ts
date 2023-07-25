@@ -14,6 +14,7 @@ export class AuthGuard extends NestAuthGuard(['jwt', 'jwt-refresh']) {
       context.getHandler(),
       context.getClass(),
     ]);
+
     if (isPublic) {
       return true;
     }

@@ -18,7 +18,7 @@ import { LogoutDTO, RefreshTokenDTO, SignInDTO } from './dto';
 import { AccessTokenGuard, RefreshTokenGuard } from './guards';
 import { AuthGuard } from './guards/auth.guard';
 import { Tokens } from './types';
-import { ApiTags, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { RegisterDTO } from './dto/register.dto';
 
 @Controller('auth')
@@ -26,6 +26,7 @@ import { RegisterDTO } from './dto/register.dto';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get('currentUser')
   async getCurrentUser(@Req() req): Promise<User> {
@@ -51,7 +52,7 @@ export class AuthController {
 
   @Post('logout')
   logout(@Body() logoutDTO: LogoutDTO) {
-    return this.authService.logout(logoutDTO.userId);
+    return this.authService.logout(logoutDTO._id);
   }
 
   @Public()

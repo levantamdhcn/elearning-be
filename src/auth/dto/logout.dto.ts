@@ -1,5 +1,10 @@
-import { Schema } from "mongoose";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator';
 
-export type LogoutDTO = {
-  userId: string;
+export class LogoutDTO {
+  @ApiProperty({
+    required: true,
+  })
+  @IsNotEmpty()
+  _id: string;
 }
