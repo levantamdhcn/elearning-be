@@ -22,6 +22,7 @@ async function bootstrap() {
     .setTitle('E-Learning')
     .setDescription('E-Learning backend based on Express platform')
     .setVersion('0.0.1')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);

@@ -7,10 +7,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { config as appConfig } from './config';
 import { config as cloudinaryConfig } from './cloudinary/config';
 
-import { UserModule } from './user/user.module';
 import { SharedModule } from './shared/shared.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { User } from './users/schemas/users.schema';
 
 const ENV = process.env.NODE_ENV;
 
@@ -24,10 +25,11 @@ const ENV = process.env.NODE_ENV;
     MongooseModule.forRootAsync({
       useFactory: async (configService: ConfigService) => {
         const host = configService.get<string>('app.DB_HOST');
+        const dbName = configService.get<string>('app.DB_NAME');
         const user = configService.get<string>('app.DB_USERNAME');
         const pass = configService.get<string>('app.DB_PASSWORD');
 
-        const uri = `mongodb+srv://${user}:${pass}@${host}/`;
+        const uri = `mongodb+srv://${user}:${pass}@${host}/${dbName}`;
 
         console.log('>>> herher ', uri);
         return {
@@ -37,8 +39,8 @@ const ENV = process.env.NODE_ENV;
       inject: [ConfigService],
     }),
     CloudinaryModule,
-    UserModule,
     SharedModule,
+    UsersModule,
     AuthModule,
   ],
   controllers: [AppController],

@@ -21,7 +21,7 @@ export class User {
   @Prop({ required: true, minlength: 6, maxlength: 50, unique: true })
   email: string;
 
-  @Prop({ required: true, minlength: 6, maxlength: 20 })
+  @Prop({ required: true, minlength: 6 })
   password: string;
 
   @Prop()
@@ -32,6 +32,9 @@ export class User {
 
   @Prop({ default: false })
   admin: boolean;
+
+  @Prop()
+  refreshToken: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
