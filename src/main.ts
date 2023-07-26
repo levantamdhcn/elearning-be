@@ -6,7 +6,7 @@ import {
   NestExpressApplication,
 } from '@nestjs/platform-express';
 
-const PORT = 3000;
+const PORT = process.env.PORT;
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(
     AppModule,
