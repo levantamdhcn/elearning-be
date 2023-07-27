@@ -140,6 +140,10 @@ export class AuthService {
     return null;
   }
 
+  async changePassword(_id: string, newPassword: string): Promise<void> {
+    await this.userService.changePassword(_id, newPassword);
+  }
+
   async isMatch(password: string, hash: string) {
     return await bcrypt.compare(password, hash);
   }

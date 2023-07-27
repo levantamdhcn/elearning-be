@@ -4,7 +4,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
-import { AtStrategy, RtStrategy } from './strategis';
+import {
+  AtStrategy,
+  RtStrategy,
+  FacebookStrategy,
+  GithubStrategy,
+} from './strategis';
 
 @Module({
   imports: [
@@ -14,7 +19,13 @@ import { AtStrategy, RtStrategy } from './strategis';
     CloudinaryModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, AtStrategy, RtStrategy],
+  providers: [
+    AuthService,
+    AtStrategy,
+    RtStrategy,
+    FacebookStrategy,
+    GithubStrategy,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

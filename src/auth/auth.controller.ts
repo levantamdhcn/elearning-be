@@ -14,7 +14,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/shared/decorator/public.decorator';
 import { User } from 'src/users/schemas/users.schema';
 import { AuthService } from './auth.service';
-import { LogoutDTO, RefreshTokenDTO, SignInDTO } from './dto';
+import {
+  ChangePasswordDTO,
+  LogoutDTO,
+  RefreshTokenDTO,
+  SignInDTO,
+} from './dto';
 import { AccessTokenGuard, RefreshTokenGuard } from './guards';
 import { AuthGuard } from './guards/auth.guard';
 import { Tokens } from './types';
@@ -64,6 +69,53 @@ export class AuthController {
     return this.authService.refreshToken(
       refreshTokenDTO._id,
       refreshTokenDTO.refreshToken,
+    );
+  }
+
+  @Post('facebook')
+  @UseGuards(AuthGuard)
+  async facebookLogin(): Promise<any> {
+    return HttpStatus.OK;
+  }
+
+  @Post('facebook/redirect')
+  @UseGuards(AuthGuard)
+  async facebookLoginRedirect(@Req() req): Promise<any> {
+    return {
+      statusCode: HttpStatus.OK,
+      data: req.user,
+    };
+  }
+
+  @Post('github')
+  @UseGuards(AuthGuard)
+  async githubLogin(): Promise<any> {
+    return HttpStatus.OK;
+  }
+
+  @Post('github/redirect')
+  @UseGuards(AuthGuard)
+  async githubLoginRedirect(@Req() req): Promise<any> {
+    return {
+      statusCode: HttpStatus.OK,
+      data: req.user,
+    };
+  }
+
+  // TODO: Forgot password
+
+  // TODO: Change password
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @Req() req,
+    @Body() changePasswordDTO: ChangePasswordDTO,
+  ) {
+    return this.authService.changePassword(
+      req.user.id,
+      changePasswordDTO.newPassword,
     );
   }
 }
