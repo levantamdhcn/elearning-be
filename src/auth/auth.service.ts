@@ -144,7 +144,9 @@ export class AuthService {
 
   async siginIn(email: string, pass: string): Promise<Tokens> {
     const user = await this.userService.findOne({ email });
-    if (!user || !(await this.isMatch(pass, user.password))) {
+    const isMatch = await this.isMatch(pass, user.password);
+
+    if (!user || !isMatch) {
       throw new UnauthorizedException();
     }
 
