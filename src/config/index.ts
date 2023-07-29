@@ -8,4 +8,5 @@ export const config = registerAs('app', () => ({
   DB_NAME: process.env.DB_NAME,
   DB_USERNAME: process.env.DB_USERNAME,
   DB_PASSWORD: process.env.DB_PASSWORD,
+  APP_HOST: process.env.APP_HOST,
 }));
