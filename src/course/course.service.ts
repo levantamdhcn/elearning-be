@@ -39,6 +39,13 @@ export class CourseService {
     return newCouse;
   }
 
+  async updateWithQuery(id: string, query: object) {
+    const course = await this.courseModel.findByIdAndUpdate(id, query, {
+      new: true,
+    });
+    return course;
+  }
+
   async remove(id: string) {
     const course = await this.findOne(id);
     if (!course) throw new Error('Course not found!');
