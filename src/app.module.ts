@@ -11,8 +11,10 @@ import { SharedModule } from './shared/shared.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { User } from './users/schemas/users.schema';
 import { CourseModule } from './course/course.module';
+import { SubjectModule } from './subject/subject.module';
+import { EnrollmentModule } from './enrollment/enrollment.module';
+import { YoutubeUploadModule } from './youtube-upload/youtube-upload.module';
 
 const ENV = process.env.NODE_ENV;
 
@@ -44,6 +46,9 @@ const ENV = process.env.NODE_ENV;
     UsersModule,
     AuthModule,
     CourseModule,
+    SubjectModule,
+    EnrollmentModule,
+    YoutubeUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
