@@ -43,6 +43,24 @@ export class AuthService {
     });
   }
 
+  async findOrCreateFacebookUser(data: RegisterDTO): Promise<User> {
+    if (!data.facebookId) throw new Error('Facebook ID is required!');
+    const user = await this.userModel.findOne({ facebookId: data.facebookId });
+    if (!user) {
+      return await this.userModel.create(data);
+    }
+    return user;
+	}
+
+  async findOrCreateGithubUser(data: RegisterDTO): Promise<User> {
+    if (!data.facebookId) throw new Error('Facebook ID is required!');
+    const user = await this.userModel.findOne({ facebookId: data.facebookId });
+    if (!user) {
+      return await this.userModel.create(data);
+    }
+    return user;
+	}
+
   async register(
     @UploadedFile() avatar: Express.Multer.File,
     data: RegisterDTO,

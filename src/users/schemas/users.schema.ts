@@ -30,6 +30,9 @@ export class User {
   @Prop()
   facebookId: string;
 
+  @Prop()
+  githubId: string;
+
   @Prop({ default: false })
   admin: boolean;
 

@@ -1,32 +1,40 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Profile, Strategy } from 'passport-github2';
+import { Strategy } from 'passport-github2';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
-  constructor() {
+  constructor(private readonly authsService: AuthService) {
     super({
       clientID: process.env.GITHUB_APP_ID,
       clientSecret: process.env.GITHUB_APP_SECRET,
       callbackURL: 'http://localhost:5000/api/auth/github/redirect',
-      scope: 'email',
-      profileFields: ['emails', 'name'],
+      scope: ['public_profile'],
+      profileFields: ['id', 'emails', 'name', 'photos'],
     });
   }
 
   async validate(
     accessToken: string,
     refreshToken: string,
-    profile: Profile,
+    profile: any,
     done: (err: any, user: any, info?: any) => void,
   ): Promise<any> {
-    console.log({ accessToken, refreshToken, profile });
-    const { name, emails } = profile;
-    const user = {
-      email: emails[0].value,
-      firstName: name.givenName,
-      lastName: name.familyName,
+    const { avatar_url, login, id, name, email } = profile;
+    const data = {
+      facebookId: null,
+      githubId: id,
+      email: email,
+      fullname: name,
+      firstName: name,
+      lastName: '',
+      username: login,
+      avatar: avatar_url,
+      password: null,
     };
+
+    const user = await this.authsService.findOrCreateGithubUser(data);
     const payload = {
       user,
       accessToken,

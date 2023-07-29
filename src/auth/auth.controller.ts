@@ -20,11 +20,11 @@ import {
   RefreshTokenDTO,
   SignInDTO,
 } from './dto';
-import { AccessTokenGuard, RefreshTokenGuard } from './guards';
 import { AuthGuard } from './guards/auth.guard';
 import { Tokens } from './types';
 import { ApiTags, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { RegisterDTO } from './dto/register.dto';
+import { FacebookGuard, GithubGuard } from './guards';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -73,33 +73,28 @@ export class AuthController {
   }
 
   @Get('facebook')
-  @UseGuards(AuthGuard)
+  @UseGuards(FacebookGuard)
   async facebookLogin(): Promise<any> {
     return HttpStatus.OK;
   }
 
   @Get('facebook/redirect')
-  @UseGuards(AuthGuard)
+  @UseGuards(FacebookGuard)
   async facebookLoginRedirect(@Req() req): Promise<any> {
-    return {
-      statusCode: HttpStatus.OK,
-      data: req.user,
-    };
+    return req.user;
   }
 
-  @Post('github')
-  @UseGuards(AuthGuard)
+  @Get('github')
+  @UseGuards(GithubGuard)
   async githubLogin(): Promise<any> {
     return HttpStatus.OK;
   }
 
-  @Post('github/redirect')
-  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('github/redirect')
+  @UseGuards(GithubGuard)
   async githubLoginRedirect(@Req() req): Promise<any> {
-    return {
-      statusCode: HttpStatus.OK,
-      data: req.user,
-    };
+    return req.user;
   }
 
   // TODO: Forgot password
