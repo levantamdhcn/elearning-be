@@ -11,7 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import * as argon2 from 'argon2';
-import { Model, Schema } from 'mongoose';
+import { Model } from 'mongoose';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { User, UserDocument } from 'src/users/schemas/users.schema';
 
@@ -42,6 +42,24 @@ export class AuthService {
       refreshToken: hash,
     });
   }
+
+  async findOrCreateFacebookUser(data: RegisterDTO): Promise<User> {
+    if (!data.facebookId) throw new Error('Facebook ID is required!');
+    const user = await this.userModel.findOne({ facebookId: data.facebookId });
+    if (!user) {
+      return await this.userModel.create(data);
+    }
+    return user;
+	}
+
+  async findOrCreateGithubUser(data: RegisterDTO): Promise<User> {
+    if (!data.facebookId) throw new Error('Facebook ID is required!');
+    const user = await this.userModel.findOne({ facebookId: data.facebookId });
+    if (!user) {
+      return await this.userModel.create(data);
+    }
+    return user;
+	}
 
   async register(
     @UploadedFile() avatar: Express.Multer.File,
@@ -140,6 +158,10 @@ export class AuthService {
   async logout(userId: string) {
     await this.userService.update(userId, { refreshToken: null });
     return null;
+  }
+
+  async changePassword(_id: string, newPassword: string): Promise<void> {
+    await this.userService.changePassword(_id, newPassword);
   }
 
   async isMatch(password: string, hash: string) {

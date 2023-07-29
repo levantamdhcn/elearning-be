@@ -14,12 +14,17 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/shared/decorator/public.decorator';
 import { User } from 'src/users/schemas/users.schema';
 import { AuthService } from './auth.service';
-import { LogoutDTO, RefreshTokenDTO, SignInDTO } from './dto';
-import { AccessTokenGuard, RefreshTokenGuard } from './guards';
+import {
+  ChangePasswordDTO,
+  LogoutDTO,
+  RefreshTokenDTO,
+  SignInDTO,
+} from './dto';
 import { AuthGuard } from './guards/auth.guard';
 import { Tokens } from './types';
 import { ApiTags, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { RegisterDTO } from './dto/register.dto';
+import { FacebookGuard, GithubGuard } from './guards';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -64,6 +69,48 @@ export class AuthController {
     return this.authService.refreshToken(
       refreshTokenDTO._id,
       refreshTokenDTO.refreshToken,
+    );
+  }
+
+  @Get('facebook')
+  @UseGuards(FacebookGuard)
+  async facebookLogin(): Promise<any> {
+    return HttpStatus.OK;
+  }
+
+  @Get('facebook/redirect')
+  @UseGuards(FacebookGuard)
+  async facebookLoginRedirect(@Req() req): Promise<any> {
+    return req.user;
+  }
+
+  @Get('github')
+  @UseGuards(GithubGuard)
+  async githubLogin(): Promise<any> {
+    return HttpStatus.OK;
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Get('github/redirect')
+  @UseGuards(GithubGuard)
+  async githubLoginRedirect(@Req() req): Promise<any> {
+    return req.user;
+  }
+
+  // TODO: Forgot password
+
+  // TODO: Change password
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @Req() req,
+    @Body() changePasswordDTO: ChangePasswordDTO,
+  ) {
+    return this.authService.changePassword(
+      req.user.id,
+      changePasswordDTO.newPassword,
     );
   }
 }

@@ -17,6 +17,12 @@ export class UserService {
     return this.userModel.findByIdAndUpdate(_id, updateUserDTO);
   }
 
+  async changePassword(_id: string, newPassword: string): Promise<User> {
+    return this.userModel.findByIdAndUpdate(_id, {
+      password: await this.hashPassword(newPassword),
+    });
+  }
+
   async findOne(query: object): Promise<User> {
     return this.userModel.findOne(query);
   }

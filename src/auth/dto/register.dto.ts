@@ -41,6 +41,17 @@ export class RegisterDTO {
     required: true,
     example: 'password',
   })
+
+  @ApiProperty({
+    required: false,
+  })
+  facebookId: string;
+
+  @ApiProperty({
+    required: false,
+  })
+  githubId: string;
+
   @IsNotEmpty()
   @NotContains(' ')
   @Length(6, 20)
