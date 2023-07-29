@@ -72,13 +72,13 @@ export class AuthController {
     );
   }
 
-  @Post('facebook')
+  @Get('facebook')
   @UseGuards(AuthGuard)
   async facebookLogin(): Promise<any> {
     return HttpStatus.OK;
   }
 
-  @Post('facebook/redirect')
+  @Get('facebook/redirect')
   @UseGuards(AuthGuard)
   async facebookLoginRedirect(@Req() req): Promise<any> {
     return {

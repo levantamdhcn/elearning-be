@@ -11,7 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import * as argon2 from 'argon2';
-import { Model, Schema } from 'mongoose';
+import { Model } from 'mongoose';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { User, UserDocument } from 'src/users/schemas/users.schema';
 
