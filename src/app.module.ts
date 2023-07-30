@@ -15,6 +15,7 @@ import { CourseModule } from './course/course.module';
 import { SubjectModule } from './subject/subject.module';
 import { EnrollmentModule } from './enrollment/enrollment.module';
 import { YoutubeUploadModule } from './youtube-upload/youtube-upload.module';
+import { CategoryModule } from './category/category.module';
 
 const ENV = process.env.NODE_ENV;
 
@@ -49,6 +50,7 @@ const ENV = process.env.NODE_ENV;
     SubjectModule,
     EnrollmentModule,
     YoutubeUploadModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
