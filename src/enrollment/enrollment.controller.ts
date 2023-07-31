@@ -6,18 +6,24 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { EnrollmentService } from './enrollment.service';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
 import { UpdateEnrollmentDto } from './dto/update-enrollment.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('enrollment')
 export class EnrollmentController {
   constructor(private readonly enrollmentService: EnrollmentService) {}
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createEnrollmentDto: CreateEnrollmentDto) {
-    return this.enrollmentService.create(createEnrollmentDto);
+  create(@Req() req, @Body() createEnrollmentDto: CreateEnrollmentDto) {
+    return this.enrollmentService.create(req.user, createEnrollmentDto);
   }
 
   @Get()
@@ -25,9 +31,11 @@ export class EnrollmentController {
     return this.enrollmentService.findAll();
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Post('/check/:id')
-  checkEnrollment(@Param() id: string, @Body() userId: string) {
-    return this.enrollmentService.checkEnroll(id, userId);
+  checkEnrollment(@Param('id') id: string, @Req() req) {
+    return this.enrollmentService.checkEnroll(id, req.user);
   }
 
   @Get('/total/:id')

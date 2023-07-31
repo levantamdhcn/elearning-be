@@ -29,6 +29,10 @@ export class CategoryService {
     return this.categoryModel.find();
   }
 
+  async findPopular() {
+    return '';
+  }
+
   async findOne(slug: string) {
     return this.categoryModel.findOne({ slug });
   }

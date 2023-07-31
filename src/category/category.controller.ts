@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { RemoveCouseFromCatDto } from './dto/remove-course-from-cat.dto';
@@ -16,6 +24,11 @@ export class CategoryController {
   @Get()
   findAll() {
     return this.categoryService.findAll();
+  }
+
+  @Get('popular')
+  findPopular() {
+    return this.categoryService.findPopular();
   }
 
   @Get(':slug')

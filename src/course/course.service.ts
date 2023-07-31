@@ -24,6 +24,15 @@ export class CourseService {
     return await this.courseModel.find();
   }
 
+  async findPopular() {
+    // this.courseModel
+    //   .find()
+    //   .sort({ views: -1 })
+    //   .limit(10)
+
+    return 'Popular';
+  }
+
   async findOne(id: string) {
     return await this.courseModel.findById(new mongoose.Types.ObjectId(id));
   }
