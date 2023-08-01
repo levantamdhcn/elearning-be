@@ -25,12 +25,8 @@ export class CourseService {
   }
 
   async findPopular() {
-    // this.courseModel
-    //   .find()
-    //   .sort({ views: -1 })
-    //   .limit(10)
-
-    return 'Popular';
+    const results = await this.courseModel.find().sort({ views: -1 }).limit(5);
+    return results;
   }
 
   async findOne(id: string) {

@@ -24,7 +24,7 @@ export class Course {
   @Prop()
   lectures: number;
 
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Subject' }] })
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: Subject.name }] })
   subjects: Subject[];
 
   @Prop()

@@ -30,7 +30,12 @@ export class CategoryService {
   }
 
   async findPopular() {
-    return '';
+    const results1 = await this.categoryModel.find()
+    console.log('results1', results1);
+
+    const results = await this.categoryModel.find().populate('courses'); // Populating the referenced documents
+    // .sort({ 'courses.views': 1 });
+    return results;
   }
 
   async findOne(slug: string) {

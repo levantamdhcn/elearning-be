@@ -12,7 +12,7 @@ export class Category {
   @Prop({ required: true })
   slug: string;
 
-  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'Course', default: [] }])
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }] })
   courses: Course[];
 }
 

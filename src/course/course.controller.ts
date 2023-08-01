@@ -33,6 +33,15 @@ export class CourseController {
     }
   }
 
+  @Get('/popular')
+  findPopular() {
+    try {
+      return this.courseService.findPopular();
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     try {
