@@ -30,12 +30,32 @@ export class CategoryService {
   }
 
   async findPopular() {
-    const results1 = await this.categoryModel.find()
-    console.log('results1', results1);
+    const results = await this.categoryModel
+      .find()
+      .populate(
+        'courses',
+        '_id name description image views hours lectures subjects demand',
+        null,
+        { sort: { views: -1 } },
+      )
+      .lean();
 
-    const results = await this.categoryModel.find().populate('courses'); // Populating the referenced documents
-    // .sort({ 'courses.views': 1 });
-    return results;
+    const totalViewsCount = results.map((el) => {
+      let totalViews = 0;
+      el.courses.forEach((el) => {
+        totalViews += el.views;
+      });
+
+      return {
+        ...el,
+        totalViews,
+      };
+    });
+
+    const sortedByViews = totalViewsCount
+      .slice()
+      .sort((a, b) => a.totalViews - b.totalViews);
+    return sortedByViews;
   }
 
   async findOne(slug: string) {
@@ -58,8 +78,8 @@ export class CategoryService {
       { $push: { courses: course._id } },
       function (err, documents) {
         return documents;
-      }
-    )
+      },
+    );
   }
 
   async removeCourse(
@@ -83,8 +103,8 @@ export class CategoryService {
       { $pull: { courses: course._id } },
       function (err, documents) {
         return documents;
-      }
-    )
+      },
+    );
   }
 
   async remove(slug: string) {
