@@ -24,6 +24,11 @@ export class CourseService {
     return await this.courseModel.find();
   }
 
+  async findPopular() {
+    const results = await this.courseModel.find().sort({ views: -1 }).limit(5);
+    return results;
+  }
+
   async findOne(id: string) {
     return await this.courseModel.findById(new mongoose.Types.ObjectId(id));
   }
@@ -37,6 +42,13 @@ export class CourseService {
       { new: true },
     );
     return newCouse;
+  }
+
+  async updateWithQuery(id: string, query: object) {
+    const course = await this.courseModel.findByIdAndUpdate(id, query, {
+      new: true,
+    });
+    return course;
   }
 
   async remove(id: string) {
