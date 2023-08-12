@@ -26,7 +26,7 @@ export class CategoryService {
   }
 
   async findAll() {
-    return this.categoryModel.find();
+    return this.categoryModel.find().populate('courses');
   }
 
   async findPopular() {
