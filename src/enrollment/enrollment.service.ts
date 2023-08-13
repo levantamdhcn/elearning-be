@@ -12,8 +12,6 @@ export class EnrollmentService {
     private enrollmentModel: Model<EnrollmentDocument>,
   ) {}
   async create(user: any, createEnrollmentDto: CreateEnrollmentDto) {
-    console.log('user', user);
-    console.log('createEnrollmentDto', createEnrollmentDto);
     if (!createEnrollmentDto.id || !user)
       throw new Error('Course and User is required');
     const enroll = new this.enrollmentModel({
@@ -25,7 +23,6 @@ export class EnrollmentService {
   }
 
   async checkEnroll(courseId: string, user: any) {
-    console.log('courseId', courseId)
     if (courseId && user._id) {
       const enrollment = await this.enrollmentModel.findOne({
         courseId: courseId,

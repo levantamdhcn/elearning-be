@@ -25,6 +25,8 @@ import { Tokens } from './types';
 import { ApiTags, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { RegisterDTO } from './dto/register.dto';
 import { FacebookGuard, GithubGuard } from './guards';
+import { FacebookLoginDTO } from './dto/facebook-login.dto';
+import { GoogleLoginDTO } from './dto/google-login.dto';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -72,10 +74,9 @@ export class AuthController {
     );
   }
 
-  @Get('facebook')
-  @UseGuards(FacebookGuard)
-  async facebookLogin(): Promise<any> {
-    return HttpStatus.OK;
+  @Post('facebook')
+  async facebookLogin(@Body() data: FacebookLoginDTO): Promise<any> {
+    return this.authService.facebookLogin(data);
   }
 
   @Get('facebook/redirect')
@@ -84,10 +85,9 @@ export class AuthController {
     return req.user;
   }
 
-  @Get('github')
-  @UseGuards(GithubGuard)
-  async githubLogin(): Promise<any> {
-    return HttpStatus.OK;
+  @Post('google')
+  async githubLogin(@Body() data: GoogleLoginDTO): Promise<any> {
+    return this.authService.googleLogin(data);
   }
 
   @HttpCode(HttpStatus.OK)

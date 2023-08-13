@@ -8,7 +8,7 @@ export class User {
   @Prop({ required: true, minlength: 6, maxlength: 30 })
   fullname: string;
 
-  @Prop({ required: true, minlength: 6, maxlength: 20, unique: true })
+  @Prop({ required: true, minlength: 6, maxlength: 50, unique: true })
   username: string;
 
   @Prop({

@@ -9,4 +9,6 @@ export const config = registerAs('app', () => ({
   DB_USERNAME: process.env.DB_USERNAME,
   DB_PASSWORD: process.env.DB_PASSWORD,
   APP_HOST: process.env.APP_HOST,
+  CLIENT_URL: process.env.CLIENT_URL,
+  FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET,
 }));

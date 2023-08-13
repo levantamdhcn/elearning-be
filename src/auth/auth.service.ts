@@ -12,6 +12,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import * as argon2 from 'argon2';
 import { Model } from 'mongoose';
+import { google } from 'googleapis';
+
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { User, UserDocument } from 'src/users/schemas/users.schema';
 
@@ -19,6 +21,13 @@ import { UserService } from 'src/users/users.service';
 import { jwtConstants } from './constants';
 import { Tokens } from './types';
 import { RegisterDTO } from './dto/register.dto';
+import { ConfigService } from '@nestjs/config';
+import { FacebookLoginDTO } from './dto/facebook-login.dto';
+import axios from 'axios';
+import { GoogleLoginDTO } from './dto/google-login.dto';
+const { OAuth2 } = google.auth;
+
+const client = new OAuth2(process.env.MAILING_SERVICE_CLIENT_ID);
 
 @Injectable()
 export class AuthService {
@@ -30,6 +39,7 @@ export class AuthService {
     private userModel: Model<UserDocument>,
     private jwtService: JwtService,
     private cloudinaryService: CloudinaryService,
+    private configService: ConfigService,
   ) {}
 
   hashData(data: string) {
@@ -43,6 +53,103 @@ export class AuthService {
     });
   }
 
+  async facebookLogin(data: FacebookLoginDTO) {
+    try {
+      const { accessToken, userID } = data;
+      const URL = `https://graph.facebook.com/v2.9/${userID}/?fields=id,name,email,picture&access_token=${accessToken}`;
+
+      const response: any = await axios.get(URL);
+
+      const { email, name, picture } = response.data;
+
+      const password = email + this.configService.get('FACEBOOK_APP_SECRET');
+
+      const passwordHash = await this.hashData(password);
+
+      const user = await this.userService.findOne({ email });
+
+      if (user) {
+        const tokens = await this.generateTokens(user._id, user.email);
+
+        return {
+          user: user,
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+        };
+      } else {
+        const newUser = new this.userModel({
+          fullname: name,
+          username: email,
+          email,
+          password: passwordHash,
+          avatar: picture.data.url,
+          facebookId: userID,
+        });
+
+        await newUser.save();
+
+        const tokens = await this.generateTokens(user._id, user.email);
+
+        return {
+          user: user,
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+        };
+      }
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async googleLogin(data: GoogleLoginDTO) {
+    try {
+      const { tokenId } = data;
+
+      const verify: any = await client.verifyIdToken({
+        idToken: tokenId,
+        audience: process.env.MAILING_SERVICE_CLIENT_ID,
+      });
+
+      const { email_verified, email, name, picture, sub } = verify.payload;
+
+      const password = email + process.env.GOOGLE_SECRET;
+
+      const passwordHash = await bcrypt.hash(password, 12);
+
+      if (!email_verified) throw new Error('Email verification failed.');
+
+      const user = await this.userService.findOne({ email });
+
+      if (user) {
+        const tokens = await this.generateTokens(user._id, user.email);
+
+        return {
+          user,
+          accessToken: tokens.access_token,
+        };
+      } else {
+        const newUser = new this.userModel({
+          fullname: name,
+          username: email,
+          email,
+          password: passwordHash,
+          avatar: picture,
+          googleId: sub,
+        });
+
+        await newUser.save();
+        const tokens = await this.generateTokens(newUser._id, newUser.email);
+
+        return {
+          user,
+          accessToken: tokens.access_token,
+        };
+      }
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
   async findOrCreateFacebookUser(data: RegisterDTO): Promise<User> {
     if (!data.facebookId) throw new Error('Facebook ID is required!');
     const user = await this.userModel.findOne({ facebookId: data.facebookId });
@@ -50,7 +157,7 @@ export class AuthService {
       return await this.userModel.create(data);
     }
     return user;
-	}
+  }
 
   async findOrCreateGithubUser(data: RegisterDTO): Promise<User> {
     if (!data.facebookId) throw new Error('Facebook ID is required!');
@@ -59,7 +166,7 @@ export class AuthService {
       return await this.userModel.create(data);
     }
     return user;
-	}
+  }
 
   async register(
     @UploadedFile() avatar: Express.Multer.File,
