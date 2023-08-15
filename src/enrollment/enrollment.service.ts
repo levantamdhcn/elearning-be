@@ -14,6 +14,12 @@ export class EnrollmentService {
   async create(user: any, createEnrollmentDto: CreateEnrollmentDto) {
     if (!createEnrollmentDto.id || !user)
       throw new Error('Course and User is required');
+    const enrollment = await this.enrollmentModel.findOne({
+      courseId: createEnrollmentDto.id,
+      userId: user._id,
+    });
+
+    if (enrollment) throw new Error('You are already enroll this course');
     const enroll = new this.enrollmentModel({
       userId: user._id,
       courseId: createEnrollmentDto.id,
@@ -23,16 +29,14 @@ export class EnrollmentService {
   }
 
   async checkEnroll(courseId: string, user: any) {
+    console.log('user', user);
     if (courseId && user._id) {
       const enrollment = await this.enrollmentModel.findOne({
         courseId: courseId,
+        userId: user._id,
       });
-
-      if (enrollment && enrollment.userId.toString() === user._id.toString()) {
-        return { enrolled: true };
-      } else {
-        return { enrolled: false };
-      }
+      if (enrollment) return { enrolled: true };
+      return { enrolled: false };
     }
   }
 

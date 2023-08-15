@@ -28,6 +28,7 @@
     "@nestjs/passport": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.1.2",
+    "@subql/x-vm2": "^3.9.3-0.1.0",
     "@types/bcrypt": "^5.0.0",
     "@types/multer": "^1.4.7",
     "@types/passport-facebook": "^3.0.0",
