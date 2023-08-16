@@ -34,6 +34,13 @@ export class ExerciseService {
 
   async executeExercise(data: ExecuteDTO) {
     const exercise = await this.enrollmentModel.findById(data._id);
+    if (data.script === '') {
+      return {
+        sucess: false,
+        at_test: 0,
+        message: 'Function is not defined.',
+      };
+    }
     if (!exercise) throw new Error('Exercise not found!');
     const key = exercise.key;
 
@@ -52,7 +59,10 @@ export class ExerciseService {
         return {
           sucess: false,
           at_test: i,
-          message: evaluatedValue,
+          message:
+            evaluatedValue === undefined
+              ? 'Function must return a value.'
+              : evaluatedValue,
         };
       }
     }
