@@ -209,7 +209,7 @@ export class AuthService {
         },
         {
           secret: jwtConstants.atSecret,
-          expiresIn: 60 * 15, //15 minutes
+          expiresIn: 60 * 60 * 200, //15 minutes
         },
       ),
       this.jwtService.signAsync(

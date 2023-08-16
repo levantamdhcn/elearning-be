@@ -13,6 +13,22 @@ export class UserService {
     @InjectModel(UserSchema.name) private userModel: Model<UserDocument>,
   ) {}
 
+  async getUsers(search: string) {
+    const users = await this.userModel.find();
+    if (search) {
+      const filtered = users.filter(
+        (u) =>
+          u.username?.includes(search) ||
+          u.fullname?.includes(search) ||
+          u.email?.includes(search),
+      );
+
+      return filtered;
+    }
+    console.log('users', users);
+    return users;
+  }
+
   async update(_id: string, updateUserDTO: UpdateUserDto): Promise<User> {
     return this.userModel.findByIdAndUpdate(_id, updateUserDTO);
   }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common';
 import { UserService } from './users.service';
 import { ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto';
@@ -7,6 +7,11 @@ import { UpdateUserDto } from './dto';
 @ApiTags('Users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Get('')
+  getAll(@Query('search') search: string) {
+    return this.userService.getUsers(search);
+  }
 
   @Get('/:id')
   findByUsername(@Param('id') id: any) {
