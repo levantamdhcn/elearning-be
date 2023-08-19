@@ -168,10 +168,7 @@ export class AuthService {
     return user;
   }
 
-  async register(
-    @UploadedFile() avatar: Express.Multer.File,
-    data: RegisterDTO,
-  ): Promise<Tokens> {
+  async register(data: any, avatar?: Express.Multer.File): Promise<Tokens> {
     const existingEmail = await this.userModel.findOne({ email: data?.email });
     if (existingEmail) {
       throw new BadRequestException('Email already exists');
@@ -183,13 +180,16 @@ export class AuthService {
       throw new BadRequestException('Username already exists');
     }
 
-    const { url } = avatar
-      ? await this.cloudinaryService.uploadFile(avatar)
-      : null;
+    if (avatar) {
+      const { url } = avatar
+        ? await this.cloudinaryService.uploadFile(avatar)
+        : null;
+      data.avatar = url;
+    }
+    
 
     const user = new this.userModel({
       ...data,
-      ...(url && { avatar: url }),
       password: await this.hashPassword(data.password),
     });
 

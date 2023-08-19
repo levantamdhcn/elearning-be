@@ -1,7 +1,17 @@
-import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Put,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { UserService } from './users.service';
 import { ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('user')
 @ApiTags('Users')
@@ -19,7 +29,12 @@ export class UserController {
   }
 
   @Put('/:id')
-  updateUser(@Param('id') id: string, @Body() data: UpdateUserDto) {
-    return this.userService.update(id, data);
+  @UseInterceptors(FileInterceptor('avatar'))
+  updateUser(
+    @Param('id') id: string,
+    @Body() data: any,
+    @UploadedFile() avatar?: Express.Multer.File,
+  ) {
+    return this.userService.update(id, data, avatar);
   }
 }

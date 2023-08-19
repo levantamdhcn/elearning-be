@@ -4,6 +4,7 @@ import { YoutubeUploadController } from './youtube-upload.controller';
 
 @Module({
   providers: [YoutubeUploadService],
-  controllers: [YoutubeUploadController]
+  controllers: [YoutubeUploadController],
+  exports: [YoutubeUploadService]
 })
 export class YoutubeUploadModule {}

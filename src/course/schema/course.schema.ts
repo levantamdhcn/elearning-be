@@ -9,6 +9,9 @@ export class Course {
   @Prop({ required: true })
   name: string;
 
+  @Prop({ required: true })
+  title: string;
+
   @Prop()
   description: string;
 

@@ -4,14 +4,22 @@ import mongoose, { Model } from 'mongoose';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { CourseDocument, Course as CourseSchema } from './schema/course.schema';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class CourseService {
   constructor(
     @InjectModel(CourseSchema.name) private courseModel: Model<CourseDocument>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
-  async create(createCourseDto: CreateCourseDto) {
+  async create(createCourseDto: CreateCourseDto, image?: Express.Multer.File) {
     try {
+      if (image) {
+        const { url } = image
+          ? await this.cloudinaryService.uploadFile(image)
+          : null;
+        createCourseDto.image = url;
+      }
       const newCourse = new this.courseModel(createCourseDto);
       await newCourse.save();
       return newCourse;

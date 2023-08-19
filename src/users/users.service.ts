@@ -6,11 +6,13 @@ import * as bcrypt from 'bcrypt';
 import { User as UserSchema, UserDocument } from './schemas/users.schema';
 import { User } from './interface';
 import { UpdateUserDto } from './dto';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(UserSchema.name) private userModel: Model<UserDocument>,
+    private cloudinaryService: CloudinaryService,
   ) {}
 
   async getUsers(search: string) {
@@ -25,11 +27,23 @@ export class UserService {
 
       return filtered;
     }
-    console.log('users', users);
     return users;
   }
 
-  async update(_id: string, updateUserDTO: UpdateUserDto): Promise<User> {
+  async update(
+    _id: string,
+    updateUserDTO: any,
+    avatar?: Express.Multer.File,
+  ): Promise<User> {
+    if (avatar) {
+      const { url } = avatar
+        ? await this.cloudinaryService.uploadFile(avatar)
+        : null;
+      console.log('url', url);
+      if (url) {
+        updateUserDTO.avatar = url;
+      }
+    }
     return this.userModel.findByIdAndUpdate(_id, updateUserDTO);
   }
 

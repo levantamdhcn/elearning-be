@@ -41,13 +41,12 @@ export class AuthController {
   }
 
   @Post('register')
-  @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('avatar'))
   async register(
-    @Body() data: RegisterDTO,
+    @Body() data: any,
     @UploadedFile() avatar?: Express.Multer.File,
   ): Promise<Tokens> {
-    const user = await this.authService.register(avatar, data);
+    const user = await this.authService.register(data, avatar);
     return user;
   }
 
