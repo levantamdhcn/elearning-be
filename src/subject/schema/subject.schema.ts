@@ -12,6 +12,9 @@ export class Subject {
   @Prop()
   content: string;
 
+  @Prop()
+  thumbnail: string;
+
   @Prop({ default: false })
   isCompleted: boolean;
 

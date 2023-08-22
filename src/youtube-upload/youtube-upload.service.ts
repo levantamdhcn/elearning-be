@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { google } from 'googleapis';
 import * as fs from 'fs';
+import { UploadVideoDTO } from './dto';
 
 @Injectable()
 export class YoutubeUploadService {
@@ -38,9 +39,14 @@ export class YoutubeUploadService {
     });
   }
 
-  async uploadVideo(title: string, description: string, videoPath: string) {
+  async uploadVideo(
+    data: UploadVideoDTO,
+    videoPath: string,
+    imagePath: string,
+  ) {
     try {
-      const res = await this.youtubeClient.videos.insert({
+      const { title, description } = data;
+      const resVideo = await this.youtubeClient.videos.insert({
         part: 'snippet,status',
         requestBody: {
           snippet: {
@@ -48,14 +54,24 @@ export class YoutubeUploadService {
             description,
           },
           status: {
-            privacyStatus: 'private', // or 'public' for public videos
+            privacyStatus: 'public', // or 'public' for public videos
           },
         },
         media: {
           body: fs.createReadStream(videoPath),
         },
       });
-      return res.data;
+
+      const resThumbnail = await this.youtubeClient.thumbnails.set({
+        videoId: resVideo.data.id,
+        media: {
+          body: fs.createReadStream(imagePath),
+        },
+      });
+      return {
+        video: resVideo.data,
+        thumbnail: resThumbnail.data,
+      };
     } catch (error) {
       console.error('Error uploading video:', error.message);
       throw new Error('Failed to upload video to YouTube');
@@ -71,9 +87,14 @@ export class YoutubeUploadService {
 
         _that.oauth2Client.setCredentials(tokens);
         _that.authed = true;
-        res.redirect('http://localhost:3000/admin');
+        res.redirect('http://localhost:3000/admin?tab=lecture');
       });
     }
+  }
+
+  async unauth() {
+    this.authed = false;
+    return { success: true };
   }
 
   async auth() {

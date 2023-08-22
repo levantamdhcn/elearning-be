@@ -1,6 +1,6 @@
 export class CreateSubjectDto {
-  title: string;
-  description: string;
+  name: string;
+  content: string;
   video: string;
-  tags: string[];
+  thumbnail: string;
 }

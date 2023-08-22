@@ -15,8 +15,11 @@ import { UpdateSubjectDto } from './dto/update-subject.dto';
 export class SubjectController {
   constructor(private readonly subjectService: SubjectService) {}
 
-  @Post()
-  create(@Body() courseId: string, createSubjectDto: CreateSubjectDto) {
+  @Post('/:courseId')
+  create(
+    @Param('courseId') courseId: string,
+    @Body() createSubjectDto: CreateSubjectDto,
+  ) {
     return this.subjectService.create(courseId, createSubjectDto);
   }
 

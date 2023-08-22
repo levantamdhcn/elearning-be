@@ -24,7 +24,10 @@ export class SubjectService {
       throw new Error('Course not found');
     }
 
-    const subject = new this.subjectModel(createSubjectDto);
+    const subject = new this.subjectModel({
+      ...createSubjectDto,
+      course_id: course._id,
+    });
     await subject.save();
 
     await this.courseService.updateWithQuery(courseId, {

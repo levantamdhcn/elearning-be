@@ -59,9 +59,14 @@ export class CourseController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
+  @UseInterceptors(FileInterceptor('image'))
+  update(
+    @Param('id') id: string,
+    @Body() updateCourseDto: UpdateCourseDto,
+    @UploadedFile() image?: Express.Multer.File,
+  ) {
     try {
-      return this.courseService.update(id, updateCourseDto);
+      return this.courseService.update(id, updateCourseDto, image);
     } catch (error) {
       throw new Error(error);
     }

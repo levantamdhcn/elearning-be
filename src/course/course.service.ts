@@ -41,11 +41,21 @@ export class CourseService {
     return await this.courseModel.findById(new mongoose.Types.ObjectId(id));
   }
 
-  async update(id: string, updateCourseDto: UpdateCourseDto) {
+  async update(
+    id: string,
+    updateCourseDto: UpdateCourseDto,
+    image: Express.Multer.File,
+  ) {
     const course = await this.findOne(id);
     if (!course) throw new Error('Course not found!');
+    if (image) {
+      const { url } = image
+        ? await this.cloudinaryService.uploadFile(image)
+        : null;
+      updateCourseDto.image = url;
+    }
     const newCouse = await this.courseModel.findByIdAndUpdate(
-      new mongoose.Types.ObjectId(id),
+      course._id,
       updateCourseDto,
       { new: true },
     );
