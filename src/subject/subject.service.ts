@@ -82,6 +82,6 @@ export class SubjectService {
 
     await this.subjectModel.findByIdAndDelete(id);
 
-    return { message: 'Delete Sucessfull'};
+    return { message: 'Delete Sucessfull' };
   }
 }
