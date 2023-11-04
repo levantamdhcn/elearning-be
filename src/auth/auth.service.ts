@@ -186,8 +186,6 @@ export class AuthService {
         : null;
       data.avatar = url;
     }
-    
-
     const user = new this.userModel({
       ...data,
       password: await this.hashPassword(data.password),

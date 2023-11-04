@@ -28,12 +28,12 @@ const vm = new vm2.NodeVM({
 export class ExerciseService {
   constructor(
     @InjectModel(Exercise.name)
-    private enrollmentModel: Model<ExerciseDocument>,
+    private exerciseModel: Model<ExerciseDocument>,
     private readonly subjectService: SubjectService,
   ) {}
 
   async executeExercise(data: ExecuteDTO) {
-    const exercise = await this.enrollmentModel.findById(data._id);
+    const exercise = await this.exerciseModel.findById(data._id);
     if (data.script === '') {
       return {
         sucess: false,
@@ -72,7 +72,7 @@ export class ExerciseService {
   }
 
   async findById(id: string) {
-    const exercise = await this.enrollmentModel.findById(id);
+    const exercise = await this.exerciseModel.findById(id);
     if (!exercise) {
       throw new Error('Exercise not found');
     }
@@ -84,11 +84,11 @@ export class ExerciseService {
     if (!subject) {
       throw new Error('Subject not found');
     }
-    return this.enrollmentModel.find({ subject_id: subject._id });
+    return this.exerciseModel.find({ subject_id: subject._id });
   }
 
   async findOne(query: object) {
-    const exercise = await this.enrollmentModel.findOne(query);
+    const exercise = await this.exerciseModel.findOne(query);
     if (!exercise) {
       throw new Error('Exercise not found');
     }
@@ -97,13 +97,13 @@ export class ExerciseService {
 
   async createExercise(data: CreateExerciseDTO) {
     try {
-      const exercises = await this.enrollmentModel.find({
+      const exercises = await this.exerciseModel.find({
         subject_id: data.subject_id,
       });
       const newPosition = exercises[exercises.length - 1]
         ? exercises[exercises.length - 1].position + 1
         : 0;
-      const newEx = await this.enrollmentModel.create({
+      const newEx = await this.exerciseModel.create({
         ...data,
         position: newPosition,
       });
