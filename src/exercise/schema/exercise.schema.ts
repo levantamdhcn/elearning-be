@@ -8,7 +8,13 @@ export type ExerciseDocument = Exercise & Document;
 @Schema({ timestamps: true })
 export class Exercise {
   @Prop({ required: true })
-  question: string;
+  questionName: string;
+
+  @Prop({ required: true })
+  title: string;
+
+  @Prop({ required: true })
+  description: string;
 
   @Prop({ required: true })
   sampleCode: string;

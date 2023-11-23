@@ -30,10 +30,10 @@ export class Submission {
   solution: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Exercise.name })
-  exercise_id: string;
+  exercise: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
-  user_id: string;
+  user: string;
 }
 
 export const SubmissionSchema = SchemaFactory.createForClass(Submission);

@@ -8,12 +8,18 @@ export class CreateExerciseDTO {
     example: 'question',
   })
   @IsNotEmpty()
-  question: string;
+  questionName: string;
 
   @ApiProperty({
     required: true,
     example: 'function getTotal(a,b) { return a + b }',
   })
+  @IsNotEmpty()
+  title: string;
+
+  @IsNotEmpty()
+  description: string;
+
   @IsNotEmpty()
   sampleCode: string;
 

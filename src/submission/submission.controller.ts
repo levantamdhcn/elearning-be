@@ -3,9 +3,13 @@ import { SubmissionService } from './submission.service';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
 
 @Controller('submission')
-export class ExerciseController {
+export class SubmissionController {
   constructor(private readonly submissionService: SubmissionService) {}
 
+  @Post('run')
+  run(@Body() data: CreateSubmissionDto) {
+    return this.submissionService.run(data);
+  }
   @Post()
   create(@Body() data: CreateSubmissionDto) {
     return this.submissionService.insert(data);

@@ -7,6 +7,7 @@ import { sleep } from 'src/utils';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
 import moment from 'moment';
 import { ESubmissionStatus } from './constants/submission';
+import * as RunnerManager from '../judgingengine/RunnerManager';
 
 @Injectable()
 export class SubmissionService {
@@ -17,6 +18,7 @@ export class SubmissionService {
 
   async insert(data: CreateSubmissionDto) {
     sleep();
+    console.log('data', data);
     try {
       const submission = await this.submissionModel.create({
         ...data,
@@ -61,7 +63,7 @@ export class SubmissionService {
 
   async run(data: CreateSubmissionDto) {
     if (data._id) {
-      const submission = await this.submissionModel.findByIdAndUpdate(
+      await this.submissionModel.findByIdAndUpdate(
         data._id,
         {
           solution: data.solution,
@@ -70,21 +72,58 @@ export class SubmissionService {
         { new: true },
       );
 
-      this.run_solution(submission);
+      const submission = await this.submissionModel
+        .findById(data._id)
+        .populate('exercise');
+
+      const result = this.run_solution(submission);
+      return result;
       // RUN
     } else {
       const newSubmission = await this.insert(data);
-      this.run_solution(newSubmission);
-    }
+      const submission = await this.submissionModel
+        .findById(newSubmission._id)
+        .populate('exercise');
 
-    // RUN
-    try {
-    } catch (error) {
-      throw new Error(error);
+      const result = this.run_solution(submission);
+      return result;
     }
   }
 
-  run_solution(submission: Submission) {
+  run_solution(submission) {
+    const start_time = moment(new Date(Date.now()));
+    console.log('submission', submission);
+    RunnerManager.run(
+      submission.exercise.questionName,
+      submission.language,
+      submission.solution,
+      async (status: string, message: string) => {
+        if (
+          status === ESubmissionStatus.PASS ||
+          status == ESubmissionStatus.FAIL
+        ) {
+          const end_time = moment(new Date(Date.now()));
+          const runtime = moment(end_time, 'DD/MM/YYYY HH:mm:ss').diff(
+            moment(start_time, 'DD/MM/YYYY HH:mm:ss'),
+          );
+
+          const newSubmission = await this.submissionModel.findByIdAndUpdate(
+            submission._id,
+            {
+              ...submission,
+              status,
+              runtime,
+              timeSubmitted: moment(new Date(Date.now())),
+            },
+            { new: true },
+          );
+
+          return newSubmission;
+        } else {
+          return status;
+        }
+      },
+    );
     console.log('submission', submission);
   }
 }

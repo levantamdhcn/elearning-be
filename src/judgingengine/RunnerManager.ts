@@ -6,7 +6,6 @@ import JavaRunner from './JavaRunner';
 import JavaScriptRunner from './JavaScriptRunner';
 import PythonRunner from './PythonRunner';
 import appRoot from 'app-root-path';
-import moment from 'moment';
 import { ESubmissionLanguage } from 'src/submission/constants/submission';
 
 function Factory() {
@@ -41,26 +40,26 @@ export function run(question, lang, solution, callback) {
   const runner = factory.createRunner(lang.toLowerCase());
 
   // copy all files in the question folder from solution folder
-  const sourceDir = resolve(`${appRoot}`, 'server', 'solution', question);
+  const sourceDir = resolve(`${appRoot}`, 'src', 'solution', question);
   const targetDir = resolve(
     `${appRoot}`,
-    'server',
+    'src',
     'judgingengine',
     'temp',
-    question + '_' + lang + '_' + moment().toISOString(),
+    question + '_' + lang + '_' + Math.floor(Date.now() / 1000),
   );
 
   // copy source code files
   copyDirectory(join(sourceDir, lang), targetDir, (err) => {
     if (err) {
-      callback('99', String(err)); // 99, system error
+      return { status: '99', result: String(err) };
     }
 
     const testCaseFile = join(targetDir, 'testCase.txt');
     // copy test case file
     copyFile(join(sourceDir, 'testCase.txt'), testCaseFile, (err) => {
       if (err) {
-        callback('99', String(err)); // 99, system error
+        return { status: '99', message: String(err) };
       }
       // save the solution to Solution.java
       const sourceFile = resolve(targetDir, runner.sourceFile());
@@ -91,12 +90,12 @@ export function run(question, lang, solution, callback) {
               console.log('message');
               console.log(message);
               if (message.startsWith('[Success]')) {
-                callback('pass', message.slice(9)); // ok, pass
+                return { status: 'pass', message: message.slice(9) };
               } else {
-                callback('fail', message.slice(6)); // ok, fail
+                return { status: 'fail', message: message.slice(6) };
               }
             } else {
-              callback(status, message);
+              return { status, message };
             }
           },
         );
