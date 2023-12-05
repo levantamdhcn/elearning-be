@@ -1,8 +1,17 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ExerciseService } from './exercise.service';
 import { CreateExerciseDTO } from './dto/create.dto';
 import { ExecuteDTO } from './dto/execute.dto';
 import { SubjectService } from 'src/subject/subject.service';
+import { ExerciseSearchRequest } from './dto/exercise-search.dto';
 
 @Controller('exercise')
 export class ExerciseController {
@@ -14,6 +23,13 @@ export class ExerciseController {
   @Get('subject/:id')
   getBySubject(@Param() id: string) {
     return this.exerciseService.findBySubject(id);
+  }
+
+  @Get()
+  get(
+    @Query(new ValidationPipe({ whitelist: true })) query: ExerciseSearchRequest,
+  ) {
+    return this.exerciseService.find(query);
   }
 
   @Get('/:id')

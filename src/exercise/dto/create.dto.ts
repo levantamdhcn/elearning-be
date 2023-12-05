@@ -21,6 +21,9 @@ export class CreateExerciseDTO {
   description: string;
 
   @IsNotEmpty()
+  mainFunction: string;
+
+  @IsNotEmpty()
   sampleCode: string;
 
   @ApiProperty({

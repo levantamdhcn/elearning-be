@@ -20,7 +20,7 @@ export class Exercise {
   sampleCode: string;
 
   @Prop({ required: true })
-  key: string;
+  mainFunction: string;
 
   @Prop({ required: true })
   demand: string[];

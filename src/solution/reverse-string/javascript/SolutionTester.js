@@ -1,6 +1,7 @@
-import { resolve } from 'path';
-import { readFileSync } from 'fs';
-import reverseString from './Solution.js';
+/* eslint-disable @typescript-eslint/no-var-requires */
+const { resolve } = require('path');
+const { readFileSync } = require('fs');
+const reverseString = require('./Solution.js');
 
 // read test case from file
 const file = resolve(__dirname, 'testcase.txt');

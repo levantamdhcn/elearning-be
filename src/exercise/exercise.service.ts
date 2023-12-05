@@ -6,6 +6,7 @@ import { CreateExerciseDTO } from './dto/create.dto';
 import { ExecuteDTO } from './dto/execute.dto';
 import vm2 from '@subql/x-vm2';
 import { SubjectService } from 'src/subject/subject.service';
+import { ExerciseSearchRequest } from './dto/exercise-search.dto';
 
 const vm = new vm2.NodeVM({
   console: 'inherit',
@@ -32,6 +33,16 @@ export class ExerciseService {
     private readonly subjectService: SubjectService,
   ) {}
 
+  async find(query: ExerciseSearchRequest) {
+    if (!query?.subjects || query?.subjects?.length === 0) {
+      return this.exerciseModel.find({}).populate('subject_id').lean();
+    }
+    return this.exerciseModel
+      .find({ subject_id: { $in: query.subjects } })
+      .populate('subject_id')
+      .lean();
+  }
+
   async executeExercise(data: ExecuteDTO) {
     const exercise = await this.exerciseModel.findById(data._id);
     if (data.script === '') {
@@ -42,7 +53,7 @@ export class ExerciseService {
       };
     }
     if (!exercise) throw new Error('Exercise not found!');
-    const key = exercise.key;
+    const key = exercise.mainFunction;
 
     // const s = new Sandbox();
     for (let i = 0; i < exercise.testCases.length; i++) {

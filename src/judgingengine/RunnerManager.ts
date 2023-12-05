@@ -86,13 +86,11 @@ export function run(question, lang, solution, callback) {
           extension,
           function (status, message) {
             if (status == 'ok') {
-              // no error
-              console.log('message');
               console.log(message);
               if (message.startsWith('[Success]')) {
-                return { status: 'pass', message: message.slice(9) };
+                callback('pass', message.slice(9));
               } else {
-                return { status: 'fail', message: message.slice(6) };
+                callback('fail', message.slice(6));
               }
             } else {
               return { status, message };

@@ -98,6 +98,7 @@ export class SubmissionService {
       submission.language,
       submission.solution,
       async (status: string, message: string) => {
+        console.log('status', status);
         if (
           status === ESubmissionStatus.PASS ||
           status == ESubmissionStatus.FAIL
@@ -110,7 +111,6 @@ export class SubmissionService {
           const newSubmission = await this.submissionModel.findByIdAndUpdate(
             submission._id,
             {
-              ...submission,
               status,
               runtime,
               timeSubmitted: moment(new Date(Date.now())),
@@ -124,6 +124,5 @@ export class SubmissionService {
         }
       },
     );
-    console.log('submission', submission);
   }
 }
