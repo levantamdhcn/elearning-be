@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { ExerciseService } from './exercise.service';
 import { CreateExerciseDTO } from './dto/create.dto';
-import { ExecuteDTO } from './dto/execute.dto';
 import { SubjectService } from 'src/subject/subject.service';
 import { ExerciseSearchRequest } from './dto/exercise-search.dto';
 
@@ -27,7 +26,8 @@ export class ExerciseController {
 
   @Get()
   get(
-    @Query(new ValidationPipe({ whitelist: true })) query: ExerciseSearchRequest,
+    @Query(new ValidationPipe({ whitelist: true }))
+    query: ExerciseSearchRequest,
   ) {
     return this.exerciseService.find(query);
   }
@@ -41,9 +41,5 @@ export class ExerciseController {
   @Post()
   create(@Body() data: CreateExerciseDTO) {
     return this.exerciseService.createExercise(data);
-  }
-  @Post('/execute')
-  executeExercise(@Body() data: ExecuteDTO) {
-    return this.exerciseService.executeExercise(data);
   }
 }

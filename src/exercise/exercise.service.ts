@@ -43,44 +43,44 @@ export class ExerciseService {
       .lean();
   }
 
-  async executeExercise(data: ExecuteDTO) {
-    const exercise = await this.exerciseModel.findById(data._id);
-    if (data.script === '') {
-      return {
-        sucess: false,
-        at_test: 0,
-        message: 'Function is not defined.',
-      };
-    }
-    if (!exercise) throw new Error('Exercise not found!');
-    const key = exercise.mainFunction;
+  // async executeExercise(data: ExecuteDTO) {
+  //   const exercise = await this.exerciseModel.findById(data._id);
+  //   if (data.script === '') {
+  //     return {
+  //       sucess: false,
+  //       at_test: 0,
+  //       message: 'Function is not defined.',
+  //     };
+  //   }
+  //   if (!exercise) throw new Error('Exercise not found!');
+  //   const key = exercise.mainFunction;
 
-    // const s = new Sandbox();
-    for (let i = 0; i < exercise.testCases.length; i++) {
-      const testcase = exercise.testCases[i];
-      // Run our key
-      const ourKeyFunction = vm.run(`module.exports = ${key}`);
-      const expectedValue = ourKeyFunction(...testcase.paramValue);
+  //   // const s = new Sandbox();
+  //   for (let i = 0; i < exercise.testCases.length; i++) {
+  //     const testcase = exercise.testCases[i];
+  //     // Run our key
+  //     const ourKeyFunction = vm.run(`module.exports = ${key}`);
+  //     const expectedValue = ourKeyFunction(...testcase.paramValue);
 
-      // Run student key
-      const studentKeyFunction = vm.run(`module.exports = ${data.script}`);
-      const evaluatedValue = studentKeyFunction(...testcase.paramValue);
+  //     // Run student key
+  //     const studentKeyFunction = vm.run(`module.exports = ${data.script}`);
+  //     const evaluatedValue = studentKeyFunction(...testcase.paramValue);
 
-      if (expectedValue !== evaluatedValue) {
-        return {
-          sucess: false,
-          at_test: i,
-          message:
-            evaluatedValue === undefined
-              ? 'Function must return a value.'
-              : evaluatedValue,
-        };
-      }
-    }
-    return {
-      sucess: true,
-    };
-  }
+  //     if (expectedValue !== evaluatedValue) {
+  //       return {
+  //         sucess: false,
+  //         at_test: i,
+  //         message:
+  //           evaluatedValue === undefined
+  //             ? 'Function must return a value.'
+  //             : evaluatedValue,
+  //       };
+  //     }
+  //   }
+  //   return {
+  //     sucess: true,
+  //   };
+  // }
 
   async findById(id: string) {
     const exercise = await this.exerciseModel.findById(id);

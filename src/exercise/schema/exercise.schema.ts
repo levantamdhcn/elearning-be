@@ -17,9 +17,6 @@ export class Exercise {
   description: string;
 
   @Prop({ required: true })
-  sampleCode: string;
-
-  @Prop({ required: true })
   mainFunction: string;
 
   @Prop({ required: true })
@@ -28,14 +25,8 @@ export class Exercise {
   @Prop({ default: false })
   isCompleted: boolean;
 
-  @Prop()
-  lastAnswer: string;
-
   @Prop({ default: 1 })
   position: number;
-
-  @Prop({ required: true })
-  testCases: TestCase[];
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Subject.name })
   subject_id: string;

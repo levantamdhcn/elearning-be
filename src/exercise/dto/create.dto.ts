@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
-import { TestCase } from '../interface';
 
 export class CreateExerciseDTO {
   @ApiProperty({
@@ -37,12 +36,6 @@ export class CreateExerciseDTO {
     required: true,
     default: false,
   })
-  @ApiProperty({
-    required: true,
-  })
-  @IsNotEmpty()
-  testCases: TestCase[];
-
   @ApiProperty({
     required: true,
   })
