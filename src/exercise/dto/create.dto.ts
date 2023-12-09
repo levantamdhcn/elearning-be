@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateExerciseDTO {
   @ApiProperty({
@@ -23,14 +23,20 @@ export class CreateExerciseDTO {
   mainFunction: string;
 
   @IsNotEmpty()
-  sampleCode: string;
+  solution: string;
+
+  @IsNotEmpty()
+  solutionTester: string;
+
+  @IsNotEmpty()
+  mappedTitle: string;
 
   @ApiProperty({
     required: true,
     example: '["demand1", "demand2"]',
   })
   @IsNotEmpty()
-  demand: string[];
+  demands: string[];
 
   @ApiProperty({
     required: true,
@@ -41,4 +47,7 @@ export class CreateExerciseDTO {
   })
   @IsNotEmpty()
   subject_id: string;
+
+  @ApiProperty({ type: 'string', format: 'binary', required: true })
+  testCaseFile: Express.Multer.File;
 }

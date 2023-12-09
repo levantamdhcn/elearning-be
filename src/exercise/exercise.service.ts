@@ -1,29 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import fs from 'fs';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Exercise, ExerciseDocument } from './schema/exercise.schema';
 import { Model } from 'mongoose';
 import { CreateExerciseDTO } from './dto/create.dto';
-import { ExecuteDTO } from './dto/execute.dto';
-import vm2 from '@subql/x-vm2';
 import { SubjectService } from 'src/subject/subject.service';
 import { ExerciseSearchRequest } from './dto/exercise-search.dto';
-
-const vm = new vm2.NodeVM({
-  console: 'inherit',
-  sandbox: {},
-  require: {
-    external: true,
-    builtin: ['fs', 'path'],
-    root: './',
-    mock: {
-      fs: {
-        readFileSync() {
-          return 'Nice try!';
-        },
-      },
-    },
-  },
-});
+import writeFileRecursive from 'src/utils/writeFileRecursive';
 
 @Injectable()
 export class ExerciseService {
@@ -106,19 +89,92 @@ export class ExerciseService {
     return exercise;
   }
 
-  async createExercise(data: CreateExerciseDTO) {
+  async createExercise(data: CreateExerciseDTO, file: any) {
     try {
+      const ex = await this.exerciseModel.findOne({
+        title: data.mappedTitle,
+      });
+
+      if (ex) {
+        throw new NotFoundException('This exercise is exist');
+      }
+
+      if (data.solution) {
+        writeFileRecursive(
+          `src/solution/${data.mappedTitle}/javascript/Solution.js`,
+          data.solution,
+          (err) => {
+            if (err) throw err;
+
+            console.log('Solution is wrote successfully');
+          },
+        );
+      }
+      if (data.solutionTester) {
+        writeFileRecursive(
+          `src/solution/${data.mappedTitle}/javascript/SolutionTester.js`,
+          data.solution,
+          (err) => {
+            if (err) throw err;
+
+            console.log('Solution Tester is wrote successfully');
+          },
+        );
+      }
+
+      if (data.solutionTester) {
+        writeFileRecursive(
+          `src/solution/${data.mappedTitle}/javascript/SolutionTester.js`,
+          data.solutionTester,
+          (err) => {
+            if (err) throw err;
+
+            console.log('Solution Tester is wrote successfully');
+          },
+        );
+      }
+
+      if (file?.testCaseFile) {
+        fs.writeFile(
+          `src/solution/${data.mappedTitle}/testcase.txt`,
+          file.testCaseFile[0].buffer,
+          (err) => {
+            if (err) console.log(err);
+          },
+        );
+
+        writeFileRecursive(
+          `src/solution/${data.mappedTitle}/testresult.txt`,
+          '',
+          (err) => {
+            if (err) throw err;
+
+            console.log('Solution Tester is wrote successfully');
+          },
+        );
+      }
+
       const exercises = await this.exerciseModel.find({
         subject_id: data.subject_id,
       });
       const newPosition = exercises[exercises.length - 1]
         ? exercises[exercises.length - 1].position + 1
         : 0;
-      const newEx = await this.exerciseModel.create({
-        ...data,
+
+      const newExercise = await this.exerciseModel.create({
+        title: data.mappedTitle,
+        questionName: data.questionName,
+        description: data.description,
+        mainFunction: data.mainFunction,
+        demands: data.demands,
         position: newPosition,
+        subject_id: data.subject_id,
+        solution: data.solution,
       });
-      return newEx;
+
+      await newExercise.save();
+
+      return newExercise;
     } catch (error) {
       throw new Error(error);
     }

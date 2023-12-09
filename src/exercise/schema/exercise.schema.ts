@@ -20,7 +20,10 @@ export class Exercise {
   mainFunction: string;
 
   @Prop({ required: true })
-  demand: string[];
+  solution: string;
+
+  @Prop({ required: true })
+  demands: string[];
 
   @Prop({ default: false })
   isCompleted: boolean;

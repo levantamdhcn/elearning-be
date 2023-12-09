@@ -92,9 +92,8 @@ export class SubmissionService {
 
   run_solution(submission) {
     const start_time = moment(new Date(Date.now()));
-    console.log('submission', submission);
     RunnerManager.run(
-      submission.exercise.questionName,
+      submission.exercise.title,
       submission.language,
       submission.solution,
       async (status: string, message: string) => {
