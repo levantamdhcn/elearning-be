@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { readFile } from 'fs/promises';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Exercise, ExerciseDocument } from './schema/exercise.schema';
@@ -7,6 +8,7 @@ import { CreateExerciseDTO } from './dto/create.dto';
 import { SubjectService } from 'src/subject/subject.service';
 import { ExerciseSearchRequest } from './dto/exercise-search.dto';
 import writeFileRecursive from 'src/utils/writeFileRecursive';
+import { UpdateExerciseDTO } from './dto/update.dto';
 
 @Injectable()
 export class ExerciseService {
@@ -70,7 +72,15 @@ export class ExerciseService {
     if (!exercise) {
       throw new Error('Exercise not found');
     }
-    return exercise;
+
+    const solutionTester = await readFile(
+      `src/solution/${exercise.title}/javascript/SolutionTester.js`,
+      'utf8',
+    );
+
+    const mappedEx = { ...(exercise as any)._doc };
+    (mappedEx as any).solutionTester = solutionTester;
+    return mappedEx;
   }
 
   async findBySubject(subjectId: string) {
@@ -87,6 +97,84 @@ export class ExerciseService {
       throw new Error('Exercise not found');
     }
     return exercise;
+  }
+
+  async updateExercise(id: string, data: UpdateExerciseDTO, file: any) {
+    const exercise = await this.exerciseModel.findById(id);
+    if (!exercise) {
+      throw new Error('Exercise not found');
+    }
+
+    if (data.solution) {
+      writeFileRecursive(
+        `src/solution/${data.mappedTitle}/javascript/Solution.js`,
+        data.solution,
+        (err) => {
+          if (err) throw err;
+
+          console.log('Solution is wrote successfully');
+        },
+      );
+    }
+    if (data.solutionTester) {
+      writeFileRecursive(
+        `src/solution/${data.mappedTitle}/javascript/SolutionTester.js`,
+        data.solution,
+        (err) => {
+          if (err) throw err;
+
+          console.log('Solution Tester is wrote successfully');
+        },
+      );
+    }
+
+    if (data.solutionTester) {
+      writeFileRecursive(
+        `src/solution/${data.mappedTitle}/javascript/SolutionTester.js`,
+        data.solutionTester,
+        (err) => {
+          if (err) throw err;
+
+          console.log('Solution Tester is wrote successfully');
+        },
+      );
+    }
+
+    if (file?.testCaseFile) {
+      fs.writeFile(
+        `src/solution/${data.mappedTitle}/testcase.txt`,
+        file.testCaseFile[0].buffer,
+        (err) => {
+          if (err) console.log(err);
+        },
+      );
+
+      writeFileRecursive(
+        `src/solution/${data.mappedTitle}/testresult.txt`,
+        '',
+        (err) => {
+          if (err) throw err;
+
+          console.log('Solution Tester is wrote successfully');
+        },
+      );
+    }
+
+    const newExercise = await this.exerciseModel.findByIdAndUpdate(
+      id,
+      {
+        title: data.mappedTitle,
+        questionName: data.questionName,
+        description: data.description,
+        mainFunction: data.mainFunction,
+        demands: data.demands,
+        subject_id: data.subject_id,
+        solution: data.solution,
+      },
+      { new: true },
+    );
+
+    return newExercise;
   }
 
   async createExercise(data: CreateExerciseDTO, file: any) {
@@ -175,6 +263,33 @@ export class ExerciseService {
       await newExercise.save();
 
       return newExercise;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async removeExercise(id: string) {
+    try {
+      const ex = await this.exerciseModel.findById(id);
+
+      if (!ex) {
+        throw new NotFoundException('This exercise is not exist');
+      }
+
+      const filePath = `src/solution/${ex.title}`;
+
+      // fs.exists(filePath, function (exists) {
+      //   if (exists) {
+      //     console.log('File exists. Deleting now ...');
+      //     fs.unlinkSync(filePath);
+      //   } else {
+      //     console.log('File not found, so not deleting.');
+      //   }
+      // });
+
+      await this.exerciseModel.findByIdAndDelete(id);
+
+      return { success: true };
     } catch (error) {
       throw new Error(error);
     }

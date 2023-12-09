@@ -1,5 +1,6 @@
 var concatText = function() {
-    const firstName = 'Kiều';
-    const lastName = 'Trang';
+    var firstName = 'Kiều';
+    var lastName = 'Trang';
+
     return `${firstName} ${lastName}`
 }

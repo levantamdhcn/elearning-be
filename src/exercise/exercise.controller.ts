@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   UploadedFiles,
@@ -20,6 +22,7 @@ import { ExerciseSearchRequest } from './dto/exercise-search.dto';
 import { ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { UpdateExerciseDTO } from './dto/update.dto';
 
 @Controller('exercise')
 export class ExerciseController {
@@ -42,9 +45,28 @@ export class ExerciseController {
   }
 
   @Get('/:id')
-  getById(@Param() id: any) {
+  async getById(@Param() id: any) {
     console.log('id', id);
-    return this.exerciseService.findById(id.id);
+    return await this.exerciseService.findById(id.id);
+  }
+
+  @Patch(':id')
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'API Update Exercise' })
+  @UseInterceptors(
+    FileFieldsInterceptor([{ name: 'testCaseFile', maxCount: 1 }]),
+  )
+  @ApiBody({ type: UpdateExerciseDTO })
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async editExercise(
+    @Param('id') id: string,
+    @Body() payload: UpdateExerciseDTO,
+    @UploadedFiles()
+    file: {
+      testCaseFile: Express.Multer.File;
+    },
+  ) {
+    return await this.exerciseService.updateExercise(id, payload, file);
   }
 
   @Post()
@@ -54,9 +76,9 @@ export class ExerciseController {
     FileFieldsInterceptor([{ name: 'testCaseFile', maxCount: 1 }]),
   )
   @ApiBody({ type: CreateExerciseDTO })
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @UsePipes(new ValidationPipe({ transform: true }))
-  create(
+  async create(
     @Body() data: CreateExerciseDTO,
     @UploadedFiles()
     file: {
@@ -64,9 +86,16 @@ export class ExerciseController {
     },
   ) {
     try {
-      return this.exerciseService.createExercise(data, file);
+      return await this.exerciseService.createExercise(data, file);
     } catch (error) {
       throw new HttpException(error, HttpStatus.NOT_FOUND);
     }
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'API Delete Exercise' })
+  @UseGuards(AuthGuard)
+  async deleteExercise(@Param('id') id: string) {
+    return await this.exerciseService.removeExercise(id);
   }
 }
