@@ -1,14 +1,23 @@
-import { Body, Controller, Delete, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Patch,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { SubmissionService } from './submission.service';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
+import { Response } from 'express';
 
 @Controller('submission')
 export class SubmissionController {
   constructor(private readonly submissionService: SubmissionService) {}
 
   @Post('run')
-  run(@Body() data: CreateSubmissionDto) {
-    return this.submissionService.run(data);
+  async run(@Body() data: CreateSubmissionDto, @Res() res: Response) {
+    return await this.submissionService.run(data, res);
   }
   @Post()
   create(@Body() data: CreateSubmissionDto) {

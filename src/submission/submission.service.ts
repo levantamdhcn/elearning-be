@@ -8,6 +8,7 @@ import { CreateSubmissionDto } from './dto/create-submission.dto';
 import moment from 'moment';
 import { ESubmissionStatus } from './constants/submission';
 import * as RunnerManager from '../judgingengine/RunnerManager';
+import { Response } from 'express';
 
 @Injectable()
 export class SubmissionService {
@@ -61,7 +62,7 @@ export class SubmissionService {
     }
   }
 
-  async run(data: CreateSubmissionDto) {
+  async run(data: CreateSubmissionDto, res: Response) {
     if (data._id) {
       await this.submissionModel.findByIdAndUpdate(
         data._id,
@@ -76,7 +77,7 @@ export class SubmissionService {
         .findById(data._id)
         .populate('exercise');
 
-      const result = this.run_solution(submission);
+      const result = this.run_solution(submission, res);
       return result;
       // RUN
     } else {
@@ -85,19 +86,18 @@ export class SubmissionService {
         .findById(newSubmission._id)
         .populate('exercise');
 
-      const result = this.run_solution(submission);
+      const result = this.run_solution(submission, res);
       return result;
     }
   }
 
-  run_solution(submission) {
+  async run_solution(submission, res) {
     const start_time = moment(new Date(Date.now()));
     RunnerManager.run(
       submission.exercise.title,
       submission.language,
       submission.solution,
       async (status: string, message: string) => {
-        console.log('status', status);
         if (
           status === ESubmissionStatus.PASS ||
           status == ESubmissionStatus.FAIL
@@ -116,10 +116,10 @@ export class SubmissionService {
             },
             { new: true },
           );
-
-          return newSubmission;
+          console.log('message', message);
+          res.json({ status, newSubmission, message });
         } else {
-          return status;
+          res.json(status);
         }
       },
     );
