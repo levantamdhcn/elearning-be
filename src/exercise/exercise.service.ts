@@ -276,7 +276,9 @@ export class ExerciseService {
         throw new NotFoundException('This exercise is not exist');
       }
 
-      const filePath = `src/solution/${ex.title}`;
+      //TODO: Fix not permitted to delete this exercise
+
+      // const filePath = `src/solution/${ex.title}`;
 
       // fs.exists(filePath, function (exists) {
       //   if (exists) {
