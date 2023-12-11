@@ -2,14 +2,18 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
+  Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { SubmissionService } from './submission.service';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
 import { Response } from 'express';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('submission')
 export class SubmissionController {
@@ -19,6 +23,17 @@ export class SubmissionController {
   async run(@Body() data: CreateSubmissionDto, @Res() res: Response) {
     return await this.submissionService.run(data, res);
   }
+
+  @Get('/:submission/:exercise')
+  @UseGuards(AuthGuard)
+  async get(@Param() params, @Req() req) {
+    return await this.submissionService.findByKeys(
+      params.submission,
+      params.exercise,
+      req.user._id,
+    );
+  }
+
   @Post()
   create(@Body() data: CreateSubmissionDto) {
     return this.submissionService.insert(data);

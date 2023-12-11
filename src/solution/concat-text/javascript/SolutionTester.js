@@ -53,7 +53,7 @@ function isEqual(expected, actualResult) {
     return false;
   }
 
-  if (expected.localeCompare(other.trim()) !== 0) {
+  if (expected.localeCompare(actualResult.trim()) !== 0) {
     return false;
   }
 
