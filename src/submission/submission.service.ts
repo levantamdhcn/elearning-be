@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Submission, SubmissionDocument } from './schema/submission.schema';
 
 import { sleep } from 'src/utils';
@@ -25,7 +25,6 @@ export class SubmissionService {
 
   async insert(data: CreateSubmissionDto) {
     sleep();
-    console.log('data', data);
     try {
       const submission = await this.submissionModel.create({
         ...data,
@@ -41,23 +40,15 @@ export class SubmissionService {
     }
   }
 
-  async findByKeys(exerciseId: string, submissionId: string, userId: string) {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const _this = this;
-    sleep();
-    if (!exerciseId) {
-      throw new Error('Invalid parameter: exerciseId');
-    }
-    const keysArr = exerciseId.split(',');
-
-    if (keysArr.length != 2) {
-      throw new Error('Invalid parameter: exerciseId');
-    }
-
-    this.exerciseModel.findOne({ _id: exerciseId }, function (err, exercise) {
-      if (err) {
-        throw new Error(err);
+  async findByKeys(exerciseId: string, userId: string) {
+    try {
+      sleep();
+      if (!exerciseId) {
+        throw new Error('Invalid parameter: exerciseId');
       }
+
+      const exercise = await this.exerciseModel.findById(exerciseId);
+
       if (!exercise) {
         throw new Error('Exercise not found');
       }
@@ -74,52 +65,50 @@ export class SubmissionService {
         id3: '',
       };
 
-      // get submissions if exist
-      if (submissionId) {
-        _this.submissionModel.aggregate(
-          [
-            { $match: { exercise: exerciseId, user: userId } },
-            { $sort: { timeupdated: -1 } },
-            { $group: { _id: '$language', latest: { $first: '$$ROOT' } } },
-            {
-              $project: {
-                _id: '$latest._id',
-                user: '$latest.user',
-                exercise: '$latest.exercise',
-                solution: '$latest.solution',
-                language: '$latest.language',
-                status: '$latest.status',
-                timeUpdated: '$latest.timeUpdated',
-                timeSubmitted: '$latest.timeSubmitted',
-                runtime: '$latest.runtime',
-              },
+      if (userId) {
+        const submissions = await this.submissionModel.aggregate([
+          {
+            $match: {
+              exercise: new mongoose.Types.ObjectId(exerciseId),
+              user: userId,
             },
-            { $sort: { language: 1 } },
-          ],
-          function (err, submissions) {
-            if (err) {
-              throw new Error(err);
-            }
-            if (submissions) {
-              // replace the solution in question with user's submission
-              for (let i = 0; i < submissions.length; i++) {
-                const submission = submissions[i];
-                retq.mainFunction = submission.solution;
-                if (submission.status == ESubmissionStatus.INITIAL) {
-                  retq.id1 = submission._id;
-                }
-              }
-            }
-            //console.log(retq.id1);
-            //console.log(retq);
-            return retq;
           },
-        );
-      } else {
-        // user has not logged in yet, just return question
+          { $sort: { timeUpdated: -1 } },
+          { $group: { _id: '$language', latest: { $first: '$$ROOT' } } },
+          {
+            $project: {
+              _id: '$latest._id',
+              user: '$latest.user',
+              exercise: '$latest.exercise',
+              solution: '$latest.solution',
+              language: '$latest.language',
+              status: '$latest.status',
+              timeUpdated: '$latest.timeUpdated',
+              timeSubmitted: '$latest.timeSubmitted',
+              runtime: '$latest.runtime',
+            },
+          },
+          { $sort: { language: 1 } },
+        ]);
+
+        if (submissions) {
+          // replace the solution in question with user's submission
+          for (let i = 0; i < submissions.length; i++) {
+            const submission = submissions[i];
+            retq.mainFunction = submission.solution;
+            if (submission.status == ESubmissionStatus.INITIAL) {
+              retq.id1 = submission._id;
+            }
+          }
+        }
+
         return retq;
       }
-    });
+
+      return retq;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async update(id: string, data: Partial<CreateSubmissionDto>) {

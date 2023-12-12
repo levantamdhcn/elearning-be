@@ -13,7 +13,7 @@ import {
 import { SubmissionService } from './submission.service';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
 import { Response } from 'express';
-import { AuthGuard } from '@nestjs/passport';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('submission')
 export class SubmissionController {
@@ -24,14 +24,10 @@ export class SubmissionController {
     return await this.submissionService.run(data, res);
   }
 
-  @Get('/:submission/:exercise')
+  @Get('/exercise/:exerciseId')
   @UseGuards(AuthGuard)
-  async get(@Param() params, @Req() req) {
-    return await this.submissionService.findByKeys(
-      params.submission,
-      params.exercise,
-      req.user._id,
-    );
+  async get(@Param('exerciseId') exerciseId, @Req() req) {
+    return await this.submissionService.findByKeys(exerciseId, req.user._id);
   }
 
   @Post()
