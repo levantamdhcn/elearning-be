@@ -87,4 +87,15 @@ export class SubjectService {
 
     return { message: 'Delete Sucessfull' };
   }
+
+  async countCompleted(id: string) {
+    try {
+      return await this.subjectModel.find({
+        isCompleted: true,
+        course_id: id,
+      });
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
 }

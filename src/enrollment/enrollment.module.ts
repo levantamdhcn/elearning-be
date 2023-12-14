@@ -17,6 +17,6 @@ import { Enrollment, EnrollmentSchema } from './schema/enrollment.schema';
     MongooseModule.forFeature([
       { name: Enrollment.name, schema: EnrollmentSchema },
     ]),
-  ]
+  ],
 })
 export class EnrollmentModule {}

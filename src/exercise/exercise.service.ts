@@ -9,6 +9,7 @@ import { SubjectService } from 'src/subject/subject.service';
 import { ExerciseSearchRequest } from './dto/exercise-search.dto';
 import writeFileRecursive from 'src/utils/writeFileRecursive';
 import { UpdateExerciseDTO } from './dto/update.dto';
+import { Subject } from 'src/subject/schema/subject.schema';
 
 @Injectable()
 export class ExerciseService {
@@ -294,6 +295,28 @@ export class ExerciseService {
       return { success: true };
     } catch (error) {
       throw new Error(error);
+    }
+  }
+
+  async countCompleted(courseId: string) {
+    try {
+      return await this.exerciseModel.aggregate([
+        { $match: { isCompleted: true } },
+        {
+          $lookup: {
+            from: Subject.name,
+            let: { courseId: '$course_id' },
+            pipeline: [
+              { $match: { $expr: { $eq: ['$course_id', '$$courseId'] } } },
+            ],
+            as: 'users',
+          },
+        },
+        { $unwind: '$users' },
+        { $replaceRoot: { newRoot: '$users' } },
+      ]);
+    } catch (error) {
+      throw new Error(error.message);
     }
   }
 }
