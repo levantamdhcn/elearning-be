@@ -3,7 +3,7 @@ import { readFile } from 'fs/promises';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Exercise, ExerciseDocument } from './schema/exercise.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { CreateExerciseDTO } from './dto/create.dto';
 import { SubjectService } from 'src/subject/subject.service';
 import { ExerciseSearchRequest } from './dto/exercise-search.dto';
@@ -110,7 +110,7 @@ export class ExerciseService {
       writeFileRecursive(
         `src/solution/${data.mappedTitle}/javascript/Solution.js`,
         data.solution,
-        (err) => {
+        (err: any) => {
           if (err) throw err;
 
           console.log('Solution is wrote successfully');
@@ -121,7 +121,7 @@ export class ExerciseService {
       writeFileRecursive(
         `src/solution/${data.mappedTitle}/javascript/SolutionTester.js`,
         data.solution,
-        (err) => {
+        (err: any) => {
           if (err) throw err;
 
           console.log('Solution Tester is wrote successfully');
@@ -133,7 +133,7 @@ export class ExerciseService {
       writeFileRecursive(
         `src/solution/${data.mappedTitle}/javascript/SolutionTester.js`,
         data.solutionTester,
-        (err) => {
+        (err: any) => {
           if (err) throw err;
 
           console.log('Solution Tester is wrote successfully');
@@ -153,7 +153,7 @@ export class ExerciseService {
       writeFileRecursive(
         `src/solution/${data.mappedTitle}/testresult.txt`,
         '',
-        (err) => {
+        (err: any) => {
           if (err) throw err;
 
           console.log('Solution Tester is wrote successfully');
@@ -192,7 +192,7 @@ export class ExerciseService {
         writeFileRecursive(
           `src/solution/${data.mappedTitle}/javascript/Solution.js`,
           data.solution,
-          (err) => {
+          (err: any) => {
             if (err) throw err;
 
             console.log('Solution is wrote successfully');
@@ -203,7 +203,7 @@ export class ExerciseService {
         writeFileRecursive(
           `src/solution/${data.mappedTitle}/javascript/SolutionTester.js`,
           data.solution,
-          (err) => {
+          (err: any) => {
             if (err) throw err;
 
             console.log('Solution Tester is wrote successfully');
@@ -215,7 +215,7 @@ export class ExerciseService {
         writeFileRecursive(
           `src/solution/${data.mappedTitle}/javascript/SolutionTester.js`,
           data.solutionTester,
-          (err) => {
+          (err: any) => {
             if (err) throw err;
 
             console.log('Solution Tester is wrote successfully');
@@ -235,7 +235,7 @@ export class ExerciseService {
         writeFileRecursive(
           `src/solution/${data.mappedTitle}/testresult.txt`,
           '',
-          (err) => {
+          (err: any) => {
             if (err) throw err;
 
             console.log('Solution Tester is wrote successfully');
@@ -298,22 +298,33 @@ export class ExerciseService {
     }
   }
 
-  async countCompleted(courseId: string) {
+  async countCompleted(subjectIds: string[]) {
     try {
       return await this.exerciseModel.aggregate([
-        { $match: { isCompleted: true } },
         {
-          $lookup: {
-            from: Subject.name,
-            let: { courseId: '$course_id' },
-            pipeline: [
-              { $match: { $expr: { $eq: ['$course_id', '$$courseId'] } } },
-            ],
-            as: 'users',
+          $match: {
+            subject_id: {
+              $in: subjectIds,
+            },
+            isCompleted: true,
           },
         },
-        { $unwind: '$users' },
-        { $replaceRoot: { newRoot: '$users' } },
+      ]);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async countBySubjects(subjectIds: string[]) {
+    try {
+      return await this.exerciseModel.aggregate([
+        {
+          $match: {
+            subject_id: {
+              $in: subjectIds,
+            },
+          },
+        },
       ]);
     } catch (error) {
       throw new Error(error.message);

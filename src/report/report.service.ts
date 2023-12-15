@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateOverviewDto } from './dto/create-overview.dto';
-import { UpdateOverviewDto } from './dto/update-overview.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   Enrollment,
@@ -12,9 +10,10 @@ import { EnrollmentService } from 'src/enrollment/enrollment.service';
 import { SubjectService } from 'src/subject/subject.service';
 import { ExerciseService } from 'src/exercise/exercise.service';
 import { SubmissionService } from 'src/submission/submission.service';
+import { ReportEnrollmentRequest } from './dto/report-enrollment.dto';
 
 @Injectable()
-export class OverviewService {
+export class ReportService {
   constructor(
     @InjectModel(Enrollment.name)
     private enrollmentModel: Model<EnrollmentDocument>,
@@ -63,13 +62,17 @@ export class OverviewService {
         );
 
         const completedEx = await this.exerciseService.countCompleted(
-          courses._id,
+          courses.subjects || [],
         );
 
-        console.log('completedEx', completedEx);
+        const exerciseByCourse = await this.exerciseService.countBySubjects(
+          courses.subjects || [],
+        );
 
         courses.enrollments = enrollments;
         courses.completedSbj = completedSbj.length;
+        courses.completedExercise = completedEx.length;
+        courses.exercises = exerciseByCourse;
 
         return courses;
       })(),
@@ -80,23 +83,31 @@ export class OverviewService {
     return courses;
   }
 
-  create(createOverviewDto: CreateOverviewDto) {
-    return 'This action adds a new overview';
-  }
+  async reportEnrollment(query: ReportEnrollmentRequest) {
+    const data = await this.enrollmentModel.aggregate([
+      {
+        $match: {
+          // Match records within the specified date range
+          createdAt: { $gte: query.startAt, $lte: query.endAt },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            time: new Date(),
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: {
+          '_id.year': 1,
+          '_id.month': 1,
+          '_id.day': 1,
+        },
+      },
+    ]);
 
-  findAll() {
-    return `This action returns all overview`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} overview`;
-  }
-
-  update(id: number, updateOverviewDto: UpdateOverviewDto) {
-    return `This action updates a #${id} overview`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} overview`;
+    return data;
   }
 }

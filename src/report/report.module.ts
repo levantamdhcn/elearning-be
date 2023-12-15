@@ -1,6 +1,6 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { OverviewService } from './overview.service';
-import { OverviewController } from './overview.controller';
+import { ReportService } from './report.service';
+import { ReportController } from './report.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
   Enrollment,
@@ -31,7 +31,7 @@ import { SubmissionModule } from 'src/submission/submission.module';
     ]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
-  controllers: [OverviewController],
-  providers: [OverviewService],
+  controllers: [ReportController],
+  providers: [ReportService],
 })
-export class OverviewModule {}
+export class ReportModule {}
