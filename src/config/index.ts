@@ -16,4 +16,5 @@ export const config = registerAs('app', () => ({
   YOUTUBE_REDIRECT_URL: process.env.YOUTUBE_REDIRECT_URL,
   YOUTUBE_ACCESS_TOKEN: process.env.YOUTUBE_ACCESS_TOKEN,
   YOUTUBE_REFRESH_TOKEN: process.env.YOUTUBE_REFRESH_TOKEN,
+  YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY,
 }));

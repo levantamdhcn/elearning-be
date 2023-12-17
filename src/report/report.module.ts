@@ -14,6 +14,9 @@ import { EnrollmentModule } from 'src/enrollment/enrollment.module';
 import { SubjectModule } from 'src/subject/subject.module';
 import { ExerciseModule } from 'src/exercise/exercise.module';
 import { SubmissionModule } from 'src/submission/submission.module';
+import { YoutubeUploadModule } from 'src/youtube-upload/youtube-upload.module';
+import { UsersModule } from 'src/users/users.module';
+import { CompletionSubjectModule } from 'src/completion-subject/completion-subject.module';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { SubmissionModule } from 'src/submission/submission.module';
     forwardRef(() => SubjectModule),
     forwardRef(() => ExerciseModule),
     forwardRef(() => SubmissionModule),
+    forwardRef(() => YoutubeUploadModule),
+    forwardRef(() => UsersModule),
+    forwardRef(() => CompletionSubjectModule),
     MongooseModule.forFeature([
       { name: Enrollment.name, schema: EnrollmentSchema },
     ]),

@@ -19,6 +19,7 @@ import { CategoryModule } from './category/category.module';
 import { ExerciseModule } from './exercise/exercise.module';
 import { SubmissionModule } from './submission/submission.module';
 import { ReportModule } from './report/report.module';
+import { CompletionSubjectModule } from './completion-subject/completion-subject.module';
 
 const ENV = process.env.NODE_ENV;
 
@@ -57,6 +58,7 @@ const ENV = process.env.NODE_ENV;
     ExerciseModule,
     SubmissionModule,
     ReportModule,
+    CompletionSubjectModule,
   ],
   controllers: [AppController],
   providers: [AppService],

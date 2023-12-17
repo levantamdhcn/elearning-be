@@ -29,7 +29,6 @@ export class EnrollmentService {
   }
 
   async checkEnroll(courseId: string, user: any) {
-    console.log('user', user);
     if (courseId && user._id) {
       const enrollment = await this.enrollmentModel.findOne({
         courseId: courseId,
@@ -59,6 +58,16 @@ export class EnrollmentService {
 
   findOne(id: number) {
     return `This action returns a #${id} enrollment`;
+  }
+
+  async findByUser(userId: number) {
+    if (userId) {
+      const enrollment = await this.enrollmentModel.findOne({
+        userId,
+      });
+      if (enrollment) return true;
+      return false;
+    }
   }
 
   update(id: number, updateEnrollmentDto: UpdateEnrollmentDto) {

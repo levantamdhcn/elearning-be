@@ -18,4 +18,19 @@ export class ReportController {
   ) {
     return this.reportService.reportEnrollment(query);
   }
+
+  @Get('/views')
+  reportViews() {
+    return this.reportService.reportViews();
+  }
+
+  @Get('/users')
+  reportUsers() {
+    return this.reportService.reportUsers();
+  }
+
+  @Get('/submissions')
+  reportExercise() {
+    return this.reportService.reportSubmissions();
+  }
 }

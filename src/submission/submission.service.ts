@@ -209,4 +209,35 @@ export class SubmissionService {
       },
     );
   }
+
+  async report() {
+    const result = await this.submissionModel.aggregate([
+      {
+        $group: {
+          _id: null,
+          countOfSubmission: { $sum: 1 },
+          successSubmission: {
+            $sum: {
+              $cond: { if: { $eq: ['$status', 'pass'] }, then: 1, else: 0 },
+            },
+          },
+          failedSubmission: {
+            $sum: {
+              $cond: { if: { $eq: ['$status', 'fail'] }, then: 1, else: 0 },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          countOfSubmission: 1,
+          successSubmission: 1,
+          failedSubmission: 1,
+        },
+      },
+    ]);
+
+    return result[0];
+  }
 }

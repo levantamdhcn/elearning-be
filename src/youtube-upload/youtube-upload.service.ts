@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { google } from 'googleapis';
 import * as fs from 'fs';
 import { UploadVideoDTO } from './dto';
+import axios from 'axios';
 
 @Injectable()
 export class YoutubeUploadService {
@@ -117,5 +118,19 @@ export class YoutubeUploadService {
         success: false,
       };
     }
+  }
+
+  async getVideoResponse(video_id: string): Promise<any> {
+    console.log('video_id', video_id);
+    const API_KEY = this.configService.get<string>('app.YOUTUBE_API_KEY');
+    const endpoint = `https://www.googleapis.com/youtube/v3/videos?id=${video_id}&key=${API_KEY}&part=snippet,statistics`;
+    const res = await axios.get(endpoint);
+    return res.data.items[0];
+  }
+
+  async getYouTubeViewCount(video_id: string) {
+    // We destructure the statistics object and then access viewCount property as described ton api call method above
+    const { statistics } = await this.getVideoResponse(video_id);
+    return statistics.viewCount;
   }
 }

@@ -15,7 +15,7 @@ export class UserService {
     private cloudinaryService: CloudinaryService,
   ) {}
 
-  async getUsers(search: string) {
+  async getUsers(search?: string) {
     const users = await this.userModel.find();
     if (search) {
       const filtered = users.filter(
