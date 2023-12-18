@@ -9,11 +9,13 @@ import {
   Req,
   Query,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { CompletionSubjectService } from './completion-subject.service';
 import { CreateCompletionSubjectDto } from './dto/create-completion-subject.dto';
 import { UpdateCompletionSubjectDto } from './dto/update-completion-subject.dto';
 import { CompletionSubjectDtoRequest } from './dto/request-completion-subject.dto';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('completion-subject')
 export class CompletionSubjectController {
@@ -22,6 +24,7 @@ export class CompletionSubjectController {
   ) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   async create(
     @Body() createCompletionSubjectDto: CreateCompletionSubjectDto,
     @Req() req,

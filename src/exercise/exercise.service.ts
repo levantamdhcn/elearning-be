@@ -330,4 +330,40 @@ export class ExerciseService {
       throw new Error(error.message);
     }
   }
+
+  async reportExercise() {
+    try {
+      const currentDate = new Date();
+      const startOfMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        1,
+      );
+
+      const result = await this.exerciseModel.aggregate([
+        {
+          $group: {
+            _id: null,
+            allTime: { $sum: 1 },
+            thisMonth: {
+              $sum: {
+                $cond: [{ $gte: ['$createdAt', startOfMonth] }, 1, 0],
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            allTime: 1,
+            thisMonth: 1,
+          },
+        },
+      ]);
+
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }

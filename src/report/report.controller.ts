@@ -1,6 +1,14 @@
-import { Controller, Get, Query, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  Req,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ReportService } from './report.service';
 import { ReportEnrollmentRequest } from './dto/report-enrollment.dto';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('report')
 export class ReportController {
@@ -9,6 +17,11 @@ export class ReportController {
   @Get('/course')
   courseOverview() {
     return this.reportService.courseOverview();
+  }
+
+  @Get('/overview')
+  overview() {
+    return this.reportService.overview();
   }
 
   @Get('/enrollment')
@@ -20,8 +33,9 @@ export class ReportController {
   }
 
   @Get('/views')
-  reportViews() {
-    return this.reportService.reportViews();
+  @UseGuards(AuthGuard)
+  reportViews(@Req() req) {
+    return this.reportService.reportViews(req.user);
   }
 
   @Get('/users')

@@ -8,11 +8,13 @@ import {
   SubjectDocument,
   Subject as SubjectSchema,
 } from './schema/subject.schema';
+import { CompletionSubjectService } from 'src/completion-subject/completion-subject.service';
 
 @Injectable()
 export class SubjectService {
   constructor(
     private readonly courseService: CourseService,
+    private readonly completionSubjectService: CompletionSubjectService,
     @InjectModel(SubjectSchema.name)
     private subjectModel: Model<SubjectDocument>,
   ) {}
@@ -37,16 +39,56 @@ export class SubjectService {
     return subject;
   }
 
-  async findAll() {
-    return this.subjectModel.find();
+  async findAll(user) {
+    const subjects = await this.subjectModel.find();
+
+    const subjectQuery = subjects.map((subject) =>
+      (async () => {
+        const completion = await this.completionSubjectService.findAll({
+          subjectId: subject._id,
+          userId: user._id,
+          courseId: subject.course_id,
+        });
+        if (completion) {
+          subject.isCompleted = true;
+        } else {
+          subject.isCompleted = false;
+        }
+      })(),
+    );
+
+    await Promise.all(subjectQuery);
+
+    return subjects;
   }
 
-  async findByCourse(courseId: string) {
+  async findByCourse(courseId: string, user) {
     const course = await this.courseService.findOne(courseId);
     if (!course) {
       throw new Error('Course not found');
     }
-    return this.subjectModel.find({ course_id: courseId });
+
+    const subjects = await this.subjectModel.find({ course_id: courseId });
+
+    const subjectQuery = subjects.map((subject) =>
+      (async () => {
+        const completion = await this.completionSubjectService.findAll({
+          subjectId: subject._id,
+          userId: user._id,
+          courseId: subject.course_id,
+        });
+
+        if (completion.length > 0) {
+          subject.isCompleted = true;
+        } else {
+          subject.isCompleted = false;
+        }
+      })(),
+    );
+
+    await Promise.all(subjectQuery);
+
+    return subjects;
   }
 
   findOne(id: string) {
@@ -96,6 +138,42 @@ export class SubjectService {
       });
     } catch (error) {
       throw new Error(error.message);
+    }
+  }
+
+  async reportSubject() {
+    try {
+      const currentDate = new Date();
+      const startOfMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        1,
+      );
+
+      const result = await this.subjectModel.aggregate([
+        {
+          $group: {
+            _id: null,
+            allTime: { $sum: 1 },
+            thisMonth: {
+              $sum: {
+                $cond: [{ $gte: ['$createdAt', startOfMonth] }, 1, 0],
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            allTime: 1,
+            thisMonth: 1,
+          },
+        },
+      ]);
+
+      return result;
+    } catch (error) {
+      throw new Error(error);
     }
   }
 }

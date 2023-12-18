@@ -14,6 +14,7 @@ import { ReportEnrollmentRequest } from './dto/report-enrollment.dto';
 import { YoutubeUploadService } from 'src/youtube-upload/youtube-upload.service';
 import { UserService } from 'src/users/users.service';
 import { CompletionSubjectService } from 'src/completion-subject/completion-subject.service';
+import { CourseService } from 'src/course/course.service';
 
 @Injectable()
 export class ReportService {
@@ -23,6 +24,7 @@ export class ReportService {
     @InjectModel(Course.name)
     private courseModel: Model<CourseDocument>,
     private readonly enrollmentService: EnrollmentService,
+    private readonly courseService: CourseService,
     private readonly subjectService: SubjectService,
     private readonly completionSubjectService: CompletionSubjectService,
     private readonly exerciseService: ExerciseService,
@@ -30,6 +32,24 @@ export class ReportService {
     private readonly userService: UserService,
     private readonly youtubeUploadService: YoutubeUploadService,
   ) {}
+
+  async overview() {
+    try {
+      const user = await this.userService.reportUser();
+      const course = await this.courseService.reportCourse();
+      const subject = await this.subjectService.reportSubject();
+      const exercise = await this.exerciseService.reportExercise();
+
+      return {
+        user: user[0],
+        course: course[0],
+        subject: subject[0],
+        exercise: exercise[0],
+      };
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 
   async courseOverview() {
     const courses = await this.courseModel
@@ -127,7 +147,7 @@ export class ReportService {
     return data;
   }
 
-  async reportViews() {
+  async reportViews(user) {
     try {
       const courses = await this.courseModel
         .aggregate([
@@ -152,6 +172,7 @@ export class ReportService {
           let totalViews = 0;
           const subjectByCourse = await this.subjectService.findByCourse(
             courses._id,
+            user,
           );
 
           subjectByCourse.forEach((el) => {

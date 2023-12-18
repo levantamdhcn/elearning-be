@@ -31,7 +31,7 @@ export class Subject {
   position: number;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }] })
-  course_id: Course[];
+  course_id: string;
 }
 
 export const SubjectSchema = SchemaFactory.createForClass(Subject);

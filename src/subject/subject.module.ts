@@ -4,10 +4,12 @@ import { SubjectController } from './subject.controller';
 import { CourseModule } from 'src/course/course.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Subject, SubjectSchema } from './schema/subject.schema';
+import { CompletionSubjectModule } from 'src/completion-subject/completion-subject.module';
 
 @Module({
   imports: [
     forwardRef(() => CourseModule),
+    forwardRef(() => CompletionSubjectModule),
     MongooseModule.forFeature([{ name: Subject.name, schema: SubjectSchema }]),
   ],
   controllers: [SubjectController],
