@@ -24,6 +24,24 @@ export class YoutubeUploadService {
     const clientSecret = this.configService.get<string>(
       'app.YOUTUBE_CLIENT_SECRET',
     );
+    const tokens = {
+      access_token: this.configService.get<string>(
+        'app.GOOGLE_TOKENS_ACCESS_TOKEN',
+      ),
+      refresh_token: this.configService.get<string>(
+        'app.GOOGLE_TOKENS_REFRESH_TOKEN',
+      ),
+      scope: this.configService.get<string>('app.GOOGLE_TOKENS_SCOPE'),
+      token_type: this.configService.get<string>(
+        'app.GOOGLE_TOKENS_TOKEN_TYPE',
+      ),
+      id_token: this.configService.get<string>('app.GOOGLE_TOKENS_ID_TOKEN'),
+      expiry_date: this.configService.get<number>(
+        'app.GOOGLE_TOKENS_EXPIRY_DATE',
+      ),
+    };
+
+    console.log('tokens', tokens);
     const redirectUrl = this.configService.get<string>(
       'app.YOUTUBE_REDIRECT_URL',
     );
@@ -33,6 +51,8 @@ export class YoutubeUploadService {
       clientSecret,
       redirectUrl,
     );
+
+    this.oauth2Client.setCredentials(tokens);
 
     this.youtubeClient = google.youtube({
       version: 'v3',
@@ -75,7 +95,7 @@ export class YoutubeUploadService {
       };
     } catch (error) {
       console.error('Error uploading video:', error.message);
-      throw new Error('Failed to upload video to YouTube');
+      throw new Error(`Failed to upload video to YouTube: ${error}`);
     }
   }
 
@@ -85,7 +105,7 @@ export class YoutubeUploadService {
     if (code) {
       _that.oauth2Client.getToken(code, function (err, tokens) {
         if (err) throw err;
-
+        console.log('tokens', tokens);
         _that.oauth2Client.setCredentials(tokens);
         _that.authed = true;
         res.redirect('http://localhost:3000/admin?tab=lecture');
@@ -121,7 +141,6 @@ export class YoutubeUploadService {
   }
 
   async getVideoResponse(video_id: string): Promise<any> {
-    console.log('video_id', video_id);
     const API_KEY = this.configService.get<string>('app.YOUTUBE_API_KEY');
     const endpoint = `https://www.googleapis.com/youtube/v3/videos?id=${video_id}&key=${API_KEY}&part=snippet,statistics`;
     const res = await axios.get(endpoint);

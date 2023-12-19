@@ -4,6 +4,7 @@ export const config = registerAs('app', () => ({
   NODE_ENV: process.env.NODE_ENV,
   PORT: parseInt(process.env.PORT, 10) || 3001,
   DB_HOST: process.env.DB_HOST,
+  TOKENS: process.env.TOKENS,
   DB_PORT: process.env.DB_PORT,
   DB_NAME: process.env.DB_NAME,
   DB_USERNAME: process.env.DB_USERNAME,
@@ -17,4 +18,10 @@ export const config = registerAs('app', () => ({
   YOUTUBE_ACCESS_TOKEN: process.env.YOUTUBE_ACCESS_TOKEN,
   YOUTUBE_REFRESH_TOKEN: process.env.YOUTUBE_REFRESH_TOKEN,
   YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY,
+  GOOGLE_TOKENS_ACCESS_TOKEN: process.env.GOOGLE_TOKENS_ACCESS_TOKEN,
+  GOOGLE_TOKENS_REFRESH_TOKEN: process.env.GOOGLE_TOKENS_REFRESH_TOKEN,
+  GOOGLE_TOKENS_SCOPE: process.env.GOOGLE_TOKENS_SCOPE,
+  GOOGLE_TOKENS_TOKEN_TYPE: process.env.GOOGLE_TOKENS_TOKEN_TYPE,
+  GOOGLE_TOKENS_ID_TOKEN: process.env.GOOGLE_TOKENS_ID_TOKEN,
+  GOOGLE_TOKENS_EXPIRY_DATE: process.env.GOOGLE_TOKENS_EXPIRY_DATE,
 }));
