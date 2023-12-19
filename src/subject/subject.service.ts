@@ -9,11 +9,13 @@ import {
   Subject as SubjectSchema,
 } from './schema/subject.schema';
 import { CompletionSubjectService } from 'src/completion-subject/completion-subject.service';
+import { YoutubeUploadService } from 'src/youtube-upload/youtube-upload.service';
 
 @Injectable()
 export class SubjectService {
   constructor(
     private readonly courseService: CourseService,
+    private readonly youtubeUploadService: YoutubeUploadService,
     private readonly completionSubjectService: CompletionSubjectService,
     @InjectModel(SubjectSchema.name)
     private subjectModel: Model<SubjectDocument>,
@@ -26,9 +28,14 @@ export class SubjectService {
       throw new Error('Course not found');
     }
 
+    const duration = await this.youtubeUploadService.getDuration(
+      createSubjectDto.video,
+    );
+
     const subject = new this.subjectModel({
       ...createSubjectDto,
       course_id: course._id,
+      duration,
     });
     await subject.save();
 

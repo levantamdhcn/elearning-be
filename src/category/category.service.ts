@@ -34,7 +34,7 @@ export class CategoryService {
       .find()
       .populate(
         'courses',
-        '_id name description image views hours lectures subjects demand',
+        '_id name description image views hours subjects demand',
         null,
         { sort: { views: -1 } },
       )

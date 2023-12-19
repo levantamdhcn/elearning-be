@@ -4,6 +4,7 @@ import { google } from 'googleapis';
 import * as fs from 'fs';
 import { UploadVideoDTO } from './dto';
 import axios from 'axios';
+import convertTimeToSeconds from 'src/utils/convertTime';
 
 @Injectable()
 export class YoutubeUploadService {
@@ -116,6 +117,17 @@ export class YoutubeUploadService {
   async unauth() {
     this.authed = false;
     return { success: true };
+  }
+  async getDuration(id: string) {
+    const API_KEY = this.configService.get<string>('app.YOUTUBE_API_KEY');
+    const endpoint = `https://www.googleapis.com/youtube/v3/videos?id=${id}&part=contentDetails&key=${API_KEY}`;
+
+    const res = await axios.get(endpoint);
+
+    const seconds = convertTimeToSeconds(
+      res.data.items[0].contentDetails?.duration,
+    );
+    return seconds;
   }
 
   async auth() {

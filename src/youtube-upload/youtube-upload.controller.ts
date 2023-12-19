@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Put,
   Query,
@@ -65,5 +66,10 @@ export class YoutubeUploadController {
   @Get('callback')
   async callback(@Query('code') code: string, @Res() res): Promise<any> {
     return this.youtubeService.callback(code, res);
+  }
+
+  @Get('duration/:id')
+  async duration(@Param('id') id: string) {
+    return this.youtubeService.getDuration(id);
   }
 }

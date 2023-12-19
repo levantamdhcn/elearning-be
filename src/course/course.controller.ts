@@ -8,11 +8,14 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('course')
 export class CourseController {
@@ -32,6 +35,7 @@ export class CourseController {
   }
 
   @Get()
+  @UseGuards(AuthGuard)
   findAll() {
     try {
       return this.courseService.findAll();
