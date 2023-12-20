@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Subject, SubjectSchema } from './schema/subject.schema';
 import { CompletionSubjectModule } from 'src/completion-subject/completion-subject.module';
 import { YoutubeUploadModule } from 'src/youtube-upload/youtube-upload.module';
+import { Exercise, ExerciseSchema } from 'src/exercise/schema/exercise.schema';
 
 @Module({
   imports: [
@@ -13,6 +14,9 @@ import { YoutubeUploadModule } from 'src/youtube-upload/youtube-upload.module';
     forwardRef(() => YoutubeUploadModule),
     forwardRef(() => CompletionSubjectModule),
     MongooseModule.forFeature([{ name: Subject.name, schema: SubjectSchema }]),
+    MongooseModule.forFeature([
+      { name: Exercise.name, schema: ExerciseSchema },
+    ]),
   ],
   controllers: [SubjectController],
   providers: [SubjectService],

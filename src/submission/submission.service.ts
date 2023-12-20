@@ -174,6 +174,8 @@ export class SubmissionService {
       submission.language,
       submission.solution,
       async (status: string, message: string) => {
+        console.log('message', message);
+        console.log('status', status);
         if (
           status === ESubmissionStatus.PASS ||
           status == ESubmissionStatus.FAIL
@@ -204,7 +206,7 @@ export class SubmissionService {
           }
           res.json({ status, newSubmission, message });
         } else {
-          res.json(status);
+          res.json({ status, message });
         }
       },
     );

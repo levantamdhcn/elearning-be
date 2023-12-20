@@ -1,15 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { CourseDocument, Course as CourseSchema } from './schema/course.schema';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { ExerciseService } from 'src/exercise/exercise.service';
+import {
+  Exercise,
+  ExerciseDocument,
+  ExerciseSchema,
+} from 'src/exercise/schema/exercise.schema';
 
 @Injectable()
 export class CourseService {
   constructor(
     @InjectModel(CourseSchema.name) private courseModel: Model<CourseDocument>,
+    @InjectModel(Exercise.name)
+    private exerciseModel: Model<ExerciseDocument>,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
   async create(createCourseDto: CreateCourseDto, image?: Express.Multer.File) {
@@ -38,7 +46,24 @@ export class CourseService {
   }
 
   async findOne(id: string) {
-    return await this.courseModel.findById(new mongoose.Types.ObjectId(id));
+    const course = await this.courseModel
+      .findById(new mongoose.Types.ObjectId(id))
+      .lean();
+
+    const exerciseByCourse = await this.exerciseModel.aggregate([
+      {
+        $match: {
+          subject_id: {
+            $in: course.subjects,
+          },
+        },
+      },
+    ]);
+
+    return {
+      ...course,
+      exercises: exerciseByCourse,
+    };
   }
 
   async update(
@@ -46,7 +71,9 @@ export class CourseService {
     updateCourseDto: UpdateCourseDto,
     image: Express.Multer.File,
   ) {
-    const course = await this.findOne(id);
+    const course = await this.courseModel.findById(
+      new mongoose.Types.ObjectId(id),
+    );
     if (!course) throw new Error('Course not found!');
     if (image) {
       const { url } = image
@@ -70,7 +97,9 @@ export class CourseService {
   }
 
   async remove(id: string) {
-    const course = await this.findOne(id);
+    const course = await this.courseModel.findById(
+      new mongoose.Types.ObjectId(id),
+    );
     if (!course) throw new Error('Course not found!');
     await this.courseModel.findByIdAndDelete(new mongoose.Types.ObjectId(id));
 

@@ -189,6 +189,13 @@ export class ExerciseService {
       }
 
       if (data.solution) {
+        fs.truncate(
+          'src/solution/${data.mappedTitle}/javascript/Solution.js',
+          0,
+          function () {
+            console.log('done');
+          },
+        );
         writeFileRecursive(
           `src/solution/${data.mappedTitle}/javascript/Solution.js`,
           data.solution,
@@ -199,19 +206,15 @@ export class ExerciseService {
           },
         );
       }
-      if (data.solutionTester) {
-        writeFileRecursive(
-          `src/solution/${data.mappedTitle}/javascript/SolutionTester.js`,
-          data.solution,
-          (err: any) => {
-            if (err) throw err;
 
-            console.log('Solution Tester is wrote successfully');
+      if (data.solutionTester) {
+        fs.truncate(
+          'src/solution/${data.mappedTitle}/javascript/SolutionTester.js',
+          0,
+          function () {
+            console.log('done');
           },
         );
-      }
-
-      if (data.solutionTester) {
         writeFileRecursive(
           `src/solution/${data.mappedTitle}/javascript/SolutionTester.js`,
           data.solutionTester,
@@ -224,6 +227,13 @@ export class ExerciseService {
       }
 
       if (file?.testCaseFile) {
+        fs.truncate(
+          'src/solution/${data.mappedTitle}/testcase.txt',
+          0,
+          function () {
+            console.log('done');
+          },
+        );
         fs.writeFile(
           `src/solution/${data.mappedTitle}/testcase.txt`,
           file.testCaseFile[0].buffer,

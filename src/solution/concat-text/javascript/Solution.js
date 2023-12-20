@@ -4,5 +4,3 @@ var concatText = function() {
 
     return `${firstName} ${lastName}`
 };
-
-module.exports = concatText;

@@ -29,13 +29,17 @@ export class EnrollmentService {
   }
 
   async checkEnroll(courseId: string, user: any) {
-    if (courseId && user._id) {
-      const enrollment = await this.enrollmentModel.findOne({
-        courseId: courseId,
-        userId: user._id,
-      });
-      if (enrollment) return { enrolled: true };
-      return { enrolled: false };
+    try {
+      if (courseId && user._id) {
+        const enrollment = await this.enrollmentModel.findOne({
+          courseId: courseId,
+          userId: user._id,
+        });
+        if (enrollment) return { enrolled: true };
+        return { enrolled: false };
+      }
+    } catch (error) {
+      throw new Error(error);
     }
   }
 

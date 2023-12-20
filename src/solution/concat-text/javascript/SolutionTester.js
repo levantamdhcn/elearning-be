@@ -1,15 +1,12 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const { resolve } = require('path');
-const { readFileSync } = require('fs');
+const { resolve } = require("path");
+const { readFileSync } = require("fs");
 const concatText = require('./Solution.js');
 
-// read test case from file
 const file = resolve(__dirname, 'testcase.txt');
 const data = readFileSync(file);
 
 // console.log('data', data.toString());
 let lines = data.toString().split(/\r?\n|\r|\n/g);
-lines = lines.map((line) => line.replace(/\r?\n|\r/g, ' '));
 // console.log(lines);
 var testcases = [];
 for (let i = 0; i < lines.length; i = i + 2) {

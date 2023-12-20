@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { CourseService } from 'src/course/course.service';
@@ -10,6 +10,10 @@ import {
 } from './schema/subject.schema';
 import { CompletionSubjectService } from 'src/completion-subject/completion-subject.service';
 import { YoutubeUploadService } from 'src/youtube-upload/youtube-upload.service';
+import {
+  Exercise,
+  ExerciseDocument,
+} from 'src/exercise/schema/exercise.schema';
 
 @Injectable()
 export class SubjectService {
@@ -19,6 +23,8 @@ export class SubjectService {
     private readonly completionSubjectService: CompletionSubjectService,
     @InjectModel(SubjectSchema.name)
     private subjectModel: Model<SubjectDocument>,
+    @InjectModel(Exercise.name)
+    private exerciseModel: Model<ExerciseDocument>,
   ) {}
   async create(courseId: string, createSubjectDto: CreateSubjectDto) {
     if (!createSubjectDto.video) throw new Error('Video is required');
@@ -75,9 +81,11 @@ export class SubjectService {
       throw new Error('Course not found');
     }
 
-    const subjects = await this.subjectModel.find({ course_id: courseId });
+    const subjects = await this.subjectModel
+      .find({ course_id: courseId })
+      .lean();
 
-    const subjectQuery = subjects.map((subject) =>
+    const subjectQuery = subjects.map((subject: any) =>
       (async () => {
         const completion = await this.completionSubjectService.findAll({
           subjectId: subject._id,
@@ -90,6 +98,12 @@ export class SubjectService {
         } else {
           subject.isCompleted = false;
         }
+
+        const exercises = await this.exerciseModel.find({
+          subject_id: subject._id,
+        });
+
+        subject.exercises = exercises;
       })(),
     );
 

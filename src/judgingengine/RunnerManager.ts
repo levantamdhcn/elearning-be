@@ -85,6 +85,8 @@ export function run(question, lang, solution, callback) {
           testFileName,
           extension,
           function (status, message) {
+            console.log('status1', status);
+            console.log('message1', message);
             if (status == 'ok') {
               console.log(message);
               if (message.startsWith('[Success]')) {
@@ -93,7 +95,7 @@ export function run(question, lang, solution, callback) {
                 callback('fail', message.slice(6));
               }
             } else {
-              return { status, message };
+              callback(status, message);
             }
           },
         );
